@@ -1,0 +1,14 @@
+# IntelliJ / WebStorm projectbestanden
+.idea/
+*.iml
+
+# Systeembestanden (Windows/Mac)
+.DS_Store
+Thumbs.db
+
+# Optioneel: als je ooit met npm of node werkt
+node_modules/
+dist/
+
+# Persoonlijke configuratie
+.env
