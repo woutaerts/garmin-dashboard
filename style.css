@@ -1,18 +1,321 @@
-/* style.css */
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 40px 20px; }
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-#login-form { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+/* ==================== BASIS ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-.google-btn { display: flex; align-items: center; justify-content: center; gap: 12px; background: white; border: 1px solid #dadce0; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; width: 100%; transition: 0.3s; }
-.google-btn:hover { background: #f8f9fa; }
+body {
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    background-color: #f8f8f6;
+    color: #111827;
+    min-height: 100vh;
+    position: relative;
+}
 
-.dashboard-grid { display: none; max-width: 1200px; margin: 0 auto; gap: 20px; grid-template-columns: repeat(3, 1fr); }
+.hidden {
+    display: none !important;
+}
 
-.card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+/* ==================== ACHTERGROND ==================== */
+.bg-pattern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -10;
+    opacity: 0.7;
+    pointer-events: none;
+    fill: #d1d5db;
+}
 
-.header { text-align: center; margin-bottom: 40px; grid-column: span 3; }
+/* ==================== LOGIN FORMULIER ==================== */
+#login-form {
+    max-width: 384px;
+    margin: 128px auto 0;
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #d1d5db;
+    text-align: center;
+}
 
-@media (max-width: 900px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
-    .header { grid-column: span 1; }
+#login-form h2 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    letter-spacing: -0.025em;
+}
+
+#login-form p {
+    margin-bottom: 24px;
+}
+
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: auto;
+    padding: 10px 16px;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #111827;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+
+.google-btn:hover {
+    background-color: #eff1f3;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ==================== DASHBOARD LAYOUT ==================== */
+#dashboard {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 48px 24px;
+}
+
+.greeting-container {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+#greeting-text {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: #111827;
+}
+
+.greeting-container p {
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 700;
+    text-align: center;
+    color: #1f2937;
+    letter-spacing: -0.025em;
+    margin-bottom: 24px;
+}
+
+/* Voeg dit toe aan style.css */
+
+/* ==================== TOGGLE BUTTONS ==================== */
+.trend-toggle-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+
+.toggle-btn {
+    background-color: transparent;
+    border: 1px solid #d1d5db;
+    color: #6b7280;
+    padding: 8px 20px;
+    border-radius: 9999px; /* Volledig afgerond */
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.toggle-btn:hover {
+    background-color: #f3f4f6;
+    color: #374151;
+}
+
+.toggle-btn.active {
+    background-color: #111827;
+    color: white;
+    border-color: #111827;
+}
+
+/* Grids voor Kaarten & Grafieken */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 64px;
+}
+
+@media (min-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+/* ==================== KAARTEN (Data & Grafieken) ==================== */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    border: 1px solid #d1d5db;
+    transition: transform 0.3s;
+}
+
+/* Specifieke styling voor de "Vandaag" kaarten gegenereerd door JS */
+.summary-card {
+    text-align: center;
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+}
+
+.summary-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 48px;
+    font-weight: 700;
+}
+
+.summary-unit {
+    font-size: 18px;
+    color: #9ca3af;
+    margin-left: 4px;
+}
+
+/* ==================== ACTIVITEITEN ==================== */
+.activities-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 768px;
+    margin: 0 auto;
+}
+
+.activity-card {
+    cursor: pointer;
+}
+
+.activity-card:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.activity-card:hover .activity-icon {
+    transform: scale(1.1);
+}
+
+.activity-card:hover .activity-arrow {
+    color: #6b7280;
+}
+
+.activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.activity-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.activity-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: transform 0.3s;
+}
+
+.icon-running { background-color: #ffedd5; color: #ea580c; }
+.icon-strength { background-color: #dbeafe; color: #2563eb; }
+
+.activity-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.activity-date {
+    font-size: 14px;
+    color: #6b7280;
+    font-family: monospace;
+    letter-spacing: 0.025em;
+}
+
+.activity-stats {
+    text-align: right;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.activity-primary-stat {
+    font-weight: 700;
+    color: #111827;
+}
+
+.activity-duration {
+    font-size: 14px;
+    color: #6b7280;
+    font-family: monospace;
+}
+
+.activity-arrow {
+    color: #d1d5db;
+    transition: color 0.3s;
+}
+
+/* Verborgen detail grid */
+.activity-details {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #d1d5db;
+}
+
+.activity-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    text-align: center;
+}
+
+.detail-title {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.detail-unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: #6b7280;
 }
