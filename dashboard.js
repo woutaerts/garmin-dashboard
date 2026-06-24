@@ -43,7 +43,7 @@ function setGreeting() {
 
 // --- DASHBOARD INIT ---
 async function buildDashboard() {
-    // 1. Haal enkel de laatste dag op voor de "Gezondheid Vandaag" kaarten
+    // Haal enkel de laatste dag op voor de "Gezondheid Vandaag" kaarten
     const { data, error } = await supabaseClient
         .from('daily_metrics')
         .select('*')
@@ -52,35 +52,57 @@ async function buildDashboard() {
 
     if (!error && data && data.length > 0) {
         const latest = data[0];
+
+        // Bepaal de kleur van je Training Status (bijv. Groen voor Productive, Oranje voor Overreaching)
+        let statusColor = '#9ca3af'; // grijs als default
+        if (latest.training_status === 'PRODUCTIVE') statusColor = '#10b981'; // groen
+        else if (latest.training_status === 'MAINTAINING') statusColor = '#3b82f6'; // blauw
+        else if (latest.training_status === 'RECOVERY') statusColor = '#8b5cf6'; // paars
+        else if (latest.training_status === 'UNPRODUCTIVE' || latest.training_status === 'OVERREACHING') statusColor = '#ef4444'; // rood
+
         document.getElementById('summary-cards').innerHTML = `
         <div class="card summary-card">
-            <h3 class="summary-title">Sleep Score</h3>
+            <h3 class="summary-title">Slaapscore</h3>
             <p class="summary-value" style="color: #7B61FF;">${latest.sleep_score || '-'}</p>
         </div>
+        
         <div class="card summary-card">
-            <h3 class="summary-title">HRV</h3>
-            <p class="summary-value" style="color: #00C4B5;">${latest.hrv || '-'}<span class="summary-unit">ms</span></p>
+            <h3 class="summary-title">VO2 Max</h3>
+            <p class="summary-value" style="color: #3b82f6;">${latest.vo2_max || '-'}</p>
         </div>
+        
         <div class="card summary-card">
-            <h3 class="summary-title">Rusthartslag</h3>
-            <p class="summary-value" style="color: #FF4B4B;">${latest.resting_hr || '-'}<span class="summary-unit">bpm</span></p>
+            <h3 class="summary-title">Stappen</h3>
+            <p class="summary-value" style="color: #10b981;">${latest.steps_total ? latest.steps_total.toLocaleString('nl-BE') : '-'}</p>
         </div>
+        
+         <div class="card summary-card">
+            <h3 class="summary-title">Body Battery (Hoog / Laag)</h3>
+            <p class="summary-value" style="color: #f59e0b;">${latest.body_battery_high || '-'}<span class="summary-unit">/ ${latest.body_battery_low || '-'}</span></p>
+        </div>
+
+        <div class="card summary-card">
+            <h3 class="summary-title">Training Status</h3>
+            <p class="summary-value" style="font-size: 24px; color: ${statusColor}; margin-top: 10px;">${latest.training_status ? latest.training_status.replace('_', ' ') : '-'}</p>
+        </div>
+                <div class="card summary-card">
+            <h3 class="summary-title">HRV (Nacht)</h3>
+            <p class="summary-value" style="color: #00C4B5;">${latest.hrv_nightly_avg || '-'}<span class="summary-unit">ms</span></p>
+        </div>      
         `;
     }
 
-    // 2. Laad standaard de trends in voor de afgelopen 7 dagen
+    // Laad standaard de trends in voor de afgelopen 7 dagen
     updateTrends(7);
 }
 
 // --- TRENDS UPDATER ---
 async function updateTrends(days, btnElement = null) {
-    // Styling van de actieve knop updaten (als er op een knop is geklikt)
     if (btnElement) {
         document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
         btnElement.classList.add('active');
     }
 
-    // Haal het geselecteerde aantal dagen op
     const { data, error } = await supabaseClient
         .from('daily_metrics')
         .select('*')
@@ -89,70 +111,78 @@ async function updateTrends(days, btnElement = null) {
 
     if (error || !data || data.length === 0) return;
 
-    const chartData = data.reverse(); // Zet in chronologische volgorde (van oud naar nieuw)
+    const chartData = data.reverse();
 
-    // Als we het hele jaar opvragen, groeperen we de data per maand
+    let labels = [];
+    // We maken een dynamisch object aan voor alle metrieken die we willen plotten
+    let metrics = {
+        sleep_score: [], hrv_nightly_avg: [], resting_hr: [],
+        body_battery_high: [], body_battery_low: [],
+        max_stress: [], avg_stress: [],
+        training_load: [], acute_load_high: [], acute_load_low: [],
+        load_focus_anaerobic: [], load_focus_aerobic_high: [], load_focus_aerobic_low: [],
+        deep_sleep: [], light_sleep: [], rem_sleep: [], awake_time: [],
+        hrv_baseline_low: [], hrv_baseline_high: []
+    };
+
     if (days === 365) {
         const monthlyData = {};
-
-        // Loop over alle dagen en tel ze op bij de juiste maand
-        chartData.forEach(row => {
-            const [year, month] = row.date.split('-');
-            const monthKey = `${year}-${month}`; // Bijv. "2026-06"
-
-            if (!monthlyData[monthKey]) {
-                monthlyData[monthKey] = {
-                    sleep_sum: 0, sleep_count: 0,
-                    hrv_sum: 0, hrv_count: 0,
-                    rhr_sum: 0, rhr_count: 0
-                };
-            }
-
-            // We tellen alleen waardes groter dan 0 mee voor een accuraat gemiddelde
-            if (row.sleep_score > 0) {
-                monthlyData[monthKey].sleep_sum += row.sleep_score;
-                monthlyData[monthKey].sleep_count++;
-            }
-            if (row.hrv > 0) {
-                monthlyData[monthKey].hrv_sum += row.hrv;
-                monthlyData[monthKey].hrv_count++;
-            }
-            if (row.resting_hr > 0) {
-                monthlyData[monthKey].rhr_sum += row.resting_hr;
-                monthlyData[monthKey].rhr_count++;
-            }
-        });
-
-        const monthLabels = [];
-        const sleepMonthly = [];
-        const hrvMonthly = [];
-        const rhrMonthly = [];
         const monthNames = ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
 
-        // Bereken het definitieve gemiddelde per maand en maak de labels
-        Object.keys(monthlyData).sort().forEach(key => {
-            const [y, m] = key.split('-');
-            // Label wordt bijvoorbeeld: "Jun '26"
-            monthLabels.push(`${monthNames[parseInt(m) - 1]} '${y.slice(-2)}`);
+        // Verzamel alle data per maand
+        chartData.forEach(row => {
+            const [year, month] = row.date.split('-');
+            const key = `${year}-${month}`;
+            if (!monthlyData[key]) monthlyData[key] = { counts: {}, sums: {} };
 
-            const md = monthlyData[key];
-            sleepMonthly.push(md.sleep_count > 0 ? Math.round(md.sleep_sum / md.sleep_count) : null);
-            hrvMonthly.push(md.hrv_count > 0 ? Math.round(md.hrv_sum / md.hrv_count) : null);
-            rhrMonthly.push(md.rhr_count > 0 ? Math.round(md.rhr_sum / md.rhr_count) : null);
+            Object.keys(metrics).forEach(m => {
+                if (row[m] > 0) { // Enkel waardes > 0 meetellen voor een correct gemiddelde
+                    monthlyData[key].sums[m] = (monthlyData[key].sums[m] || 0) + row[m];
+                    monthlyData[key].counts[m] = (monthlyData[key].counts[m] || 0) + 1;
+                }
+            });
         });
 
-        // Teken de grafieken met de maand-data
-        createLineChart('sleepChart', 'Sleep Score', monthLabels, sleepMonthly, '#7B61FF');
-        createLineChart('hrvChart', 'HRV', monthLabels, hrvMonthly, '#00C4B5');
-        createLineChart('rhrChart', 'RHR', monthLabels, rhrMonthly, '#FF4B4B');
+        // Bereken de gemiddeldes per maand
+        Object.keys(monthlyData).sort().forEach(key => {
+            const [y, m] = key.split('-');
+            labels.push(`${monthNames[parseInt(m) - 1]} '${y.slice(-2)}`);
+            const md = monthlyData[key];
 
+            Object.keys(metrics).forEach(m => {
+                metrics[m].push(md.counts[m] > 0 ? Math.round(md.sums[m] / md.counts[m]) : null);
+            });
+        });
     } else {
-        // Dagelijkse weergave (Voor de Week en Maand toggle)
-        const dates = chartData.map(r => r.date.split('-').slice(1).reverse().join('-')); // DD-MM
-        createLineChart('sleepChart', 'Sleep Score', dates, chartData.map(r => r.sleep_score), '#7B61FF');
-        createLineChart('hrvChart', 'HRV', dates, chartData.map(r => r.hrv), '#00C4B5');
-        createLineChart('rhrChart', 'RHR', dates, chartData.map(r => r.resting_hr), '#FF4B4B');
+        // Dagelijkse weergave (Week / Maand)
+        labels = chartData.map(r => r.date.split('-').slice(1).reverse().join('-'));
+        Object.keys(metrics).forEach(m => {
+            metrics[m] = chartData.map(r => r[m]);
+        });
     }
+
+    // --- GRAFIEKEN TEKENEN ---
+
+// 1. Herstel (Slaap & RHR als lijn, HRV als Tunnel!)
+    createLineChart('sleepChart', 'Slaapscore', labels, metrics.sleep_score, '#7B61FF');
+    createBandChart('hrvChart', 'HRV & Baseline', labels, metrics.hrv_nightly_avg, metrics.hrv_baseline_low, metrics.hrv_baseline_high, '#00C4B5', '#00C4B5');
+    createLineChart('rhrChart', 'Rusthartslag', labels, metrics.resting_hr, '#FF4B4B');
+
+    // 2. Energie & Stress
+    createDualLineChart('bodyBatteryChart', 'Body Battery (Hoog/Laag)', labels, metrics.body_battery_high, metrics.body_battery_low, '#10b981', '#ef4444');
+    createDualLineChart('stressChart', 'Stress (Max/Gem)', labels, metrics.max_stress, metrics.avg_stress, '#f59e0b', '#3b82f6');
+
+    // 3. Training
+    createBandChart('trainingLoadChart', 'Acute Training Load', labels, metrics.training_load, metrics.acute_load_low, metrics.acute_load_high, '#8b5cf6', '#10b981');
+    createFocusChart('loadFocusChart', 'Training Load Focus', labels, metrics.load_focus_anaerobic, metrics.load_focus_aerobic_high, metrics.load_focus_aerobic_low);
+
+    // 4. Slaap Opbouw (Minuten omgezet naar uren met 2 decimalen)
+    createSleepPhasesChart('sleepPhasesChart', 'Slaap Opbouw (Uren)', labels,
+        metrics.deep_sleep.map(m => m ? (m / 60).toFixed(2) : 0),
+        metrics.rem_sleep.map(m => m ? (m / 60).toFixed(2) : 0),
+        metrics.light_sleep.map(m => m ? (m / 60).toFixed(2) : 0),
+        metrics.awake_time.map(m => m ? (m / 60).toFixed(2) : 0)
+    );
 }
 
 // --- RECENTE WORKOUTS ---
@@ -229,24 +259,20 @@ window.toggleDetails = function(id) {
 }
 
 function createLineChart(id, title, labels, data, color) {
-    // 0. Zeer belangrijk: verwijder de oude grafiek als we switchen van Week/Maand/Jaar
     if (chartInstances[id]) {
         chartInstances[id].destroy();
     }
 
-    // 1. Bereken het gemiddelde (we negeren lege/0 waardes voor een accuraat gemiddelde)
     const validData = data.filter(val => val !== null && val > 0);
     const average = validData.length > 0
         ? Math.round(validData.reduce((a, b) => a + b, 0) / validData.length)
         : 0;
 
-    // 2. Maak een array met exact hetzelfde gemiddelde voor de stippellijn
     const avgData = Array(labels.length).fill(average);
-
-    // 3. Verberg de individuele bolletjes op de lijn als we het hele jaar (365 dagen) tonen
-    const pointRad = labels.length > 31 ? 0 : 2;
+    const pointRad = labels.length > 31 ? 0 : 3;   // iets groter voor betere zichtbaarheid
 
     const ctx = document.getElementById(id).getContext('2d');
+
     chartInstances[id] = new Chart(ctx, {
         type: 'line',
         data: {
@@ -256,10 +282,13 @@ function createLineChart(id, title, labels, data, color) {
                     label: title,
                     data: data,
                     borderColor: color,
-                    backgroundColor: color + '20',
+                    backgroundColor: color,
                     tension: 0.4,
-                    fill: true,
+                    fill: false,                    // was true, nu beter voor bolletjes
                     pointRadius: pointRad,
+                    pointBackgroundColor: color,    // volle bolletjes
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 1.5,
                     order: 2
                 },
                 {
@@ -277,11 +306,36 @@ function createLineChart(id, title, labels, data, color) {
         },
         options: {
             plugins: {
-                legend: { display: false },
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        filter: function(legendItem, chartData) {
+                            return legendItem.text !== 'Gemiddelde';
+                        },
+                        font: {
+                            family: 'Space Grotesk',
+                            size: 13
+                        },
+                        boxWidth: 12,
+                        boxHeight: 12,
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
                 title: {
                     display: true,
-                    text: `${title} (Gem: ${average})`,
-                    font: { family: 'Space Grotesk', size: 14 }
+                    text: title,                    // of `${title} (Gem: ${average})`
+                    font: {
+                        family: 'Space Grotesk',
+                        size: 16,                   // ← grotere titel
+                        weight: 600
+                    },
+                    padding: {
+                        top: 8,
+                        bottom: 16
+                    }
                 },
                 tooltip: {
                     mode: 'index',
@@ -289,8 +343,333 @@ function createLineChart(id, title, labels, data, color) {
                 }
             },
             scales: {
-                x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } } // Maximaal 12 datums op de as
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }
             }
+        }
+    });
+}
+
+// --- DUBBELE LIJN GRAFIEK (Voor Body Battery & Stress) ---
+function createDualLineChart(id, title, labels, data1, data2, color1, color2) {
+    if (chartInstances[id]) chartInstances[id].destroy();
+
+    const pointRad = labels.length > 31 ? 0 : 3;   // iets groter maken voor duidelijke bolletjes
+
+    const ctx = document.getElementById(id).getContext('2d');
+
+    chartInstances[id] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Hoog',
+                    data: data1,
+                    borderColor: color1,
+                    backgroundColor: color1,           // <-- belangrijk voor volle bolletjes
+                    tension: 0.4,
+                    pointRadius: pointRad,
+                    pointBackgroundColor: color1,      // volle vulling
+                    pointBorderColor: '#fff',          // wit randje voor mooie look
+                    pointBorderWidth: 1.5
+                },
+                {
+                    label: 'Laag',
+                    data: data2,
+                    borderColor: color2,
+                    backgroundColor: color2,           // <-- belangrijk
+                    tension: 0.4,
+                    pointRadius: pointRad,
+                    pointBackgroundColor: color2,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,           // false houden bij createLineChart als je dat wilt
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: 'Space Grotesk',
+                            size: 13                    // ← groter
+                        },
+                        boxWidth: 12,                   // ← groter
+                        boxHeight: 12,                  // ← groter
+                        padding: 12,                    // iets meer ruimte
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: title,                    // of `${title} (Gem: ${average})`
+                    font: {
+                        family: 'Space Grotesk',
+                        size: 16,                   // ← grotere titel
+                        weight: 600
+                    },
+                    padding: {
+                        top: 8,
+                        bottom: 16
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }
+            }
+        }
+    });
+}
+
+function createBandChart(id, title, labels, mainData, lowData, highData, mainColor, bandColor) {
+    if (chartInstances[id]) chartInstances[id].destroy();
+
+    const pointRad = labels.length > 31 ? 0 : 3;
+
+    const ctx = document.getElementById(id).getContext('2d');
+
+    chartInstances[id] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Acute Load',
+                    data: mainData,
+                    borderColor: mainColor,
+                    backgroundColor: mainColor,
+                    borderWidth: 2,
+                    tension: 0.4,
+                    pointRadius: pointRad,
+                    pointBackgroundColor: mainColor,
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1.5,
+                    order: 1
+                },
+                {
+                    label: 'Bovengrens',
+                    data: highData,
+                    borderColor: bandColor + '60',
+                    backgroundColor: bandColor + '20',
+                    fill: '+1',
+                    tension: 0.4,
+                    pointRadius: 0,
+                    order: 2,
+                    legend: false
+                },
+                {
+                    label: 'Ondergrens',
+                    data: lowData,
+                    borderColor: bandColor + '40',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    order: 3
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,           // false houden bij createLineChart als je dat wilt
+                    position: 'bottom',
+                    labels: {
+                        filter: function(item) {
+                            return item.text !== 'Bovengrens' && item.text !== 'Ondergrens';
+                        },
+                        font: {
+                            family: 'Space Grotesk',
+                            size: 13                    // ← groter
+                        },
+                        boxWidth: 12,                   // ← groter
+                        boxHeight: 12,                  // ← groter
+                        padding: 12,                    // iets meer ruimte
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: title,                    // of `${title} (Gem: ${average})`
+                    font: {
+                        family: 'Space Grotesk',
+                        size: 16,                   // ← grotere titel
+                        weight: 600
+                    },
+                    padding: {
+                        top: 8,
+                        bottom: 16
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { maxTicksLimit: 12 } }
+            }
+        }
+    });
+}
+
+// --- GESTAPELDE STAAFGRAFIEK (Voor Training Load Focus) ---
+function createFocusChart(id, title, labels, dataAnaerobic, dataHighAerobic, dataLowAerobic) {
+    if (chartInstances[id]) chartInstances[id].destroy();
+
+    const ctx = document.getElementById(id).getContext('2d');
+
+    chartInstances[id] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Anaeroob',
+                    data: dataAnaerobic,
+                    backgroundColor: '#8b5cf6',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Hoog Aeroob',
+                    data: dataHighAerobic,
+                    backgroundColor: '#f97316',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Laag Aeroob',
+                    data: dataLowAerobic,
+                    backgroundColor: '#0ea5e9',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,           // false houden bij createLineChart als je dat wilt
+                    position: 'bottom',
+                    labels: {
+                        font: {
+                            family: 'Space Grotesk',
+                            size: 13                    // ← groter
+                        },
+                        boxWidth: 12,                   // ← groter
+                        boxHeight: 12,                  // ← groter
+                        padding: 12,                    // iets meer ruimte
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: title,                    // of `${title} (Gem: ${average})`
+                    font: {
+                        family: 'Space Grotesk',
+                        size: 16,                   // ← grotere titel
+                        weight: 600
+                    },
+                    padding: {
+                        top: 8,
+                        bottom: 16
+                    }
+                },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true,
+                    grid: { display: false },
+                    ticks: { maxTicksLimit: 12 }
+                },
+                y: {
+                    stacked: true
+                }
+            },
+            interaction: {
+                mode: 'index',
+                intersect: false
+            }
+        }
+    });
+}
+
+
+// --- GESTAPELDE STAAFGRAFIEK (Voor Slaapfases in Uren) ---
+function createSleepPhasesChart(id, title, labels, dataDeep, dataRem, dataLight, dataAwake) {
+    if (chartInstances[id]) chartInstances[id].destroy();
+
+    const ctx = document.getElementById(id).getContext('2d');
+
+    chartInstances[id] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Diep',
+                    data: dataDeep,
+                    backgroundColor: '#1e3a8a', // Donkerblauw
+                    borderRadius: 4
+                },
+                {
+                    label: 'REM',
+                    data: dataRem,
+                    backgroundColor: '#3b82f6', // Helder blauw
+                    borderRadius: 4
+                },
+                {
+                    label: 'Licht',
+                    data: dataLight,
+                    backgroundColor: '#93c5fd', // Lichtblauw
+                    borderRadius: 4
+                },
+                {
+                    label: 'Wakker',
+                    data: dataAwake,
+                    backgroundColor: '#fca5a5', // Zacht rood/roze
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        font: { family: 'Space Grotesk', size: 13 },
+                        boxWidth: 12,
+                        boxHeight: 12,
+                        padding: 12,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                title: {
+                    display: true,
+                    text: title,
+                    font: { family: 'Space Grotesk', size: 16, weight: 600 },
+                    padding: { top: 8, bottom: 16 }
+                },
+                tooltip: { mode: 'index', intersect: false }
+            },
+            scales: {
+                x: { stacked: true, grid: { display: false }, ticks: { maxTicksLimit: 12 } },
+                y: { stacked: true }
+            },
+            interaction: { mode: 'index', intersect: false }
         }
     });
 }

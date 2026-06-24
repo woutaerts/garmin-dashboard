@@ -319,3 +319,25 @@ body {
     font-weight: 400;
     color: #6b7280;
 }
+
+/* ==================== TRENDS RASSTER (2 KOLOMMEN) ==================== */
+.trends-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 64px;
+}
+
+@media (min-width: 768px) {
+    .trends-grid {
+        /* Veranderd naar 2 kolommen voor aanzienlijk grotere grafieken */
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.trends-grid .card {
+    padding: 16px 20px 12px;           /* minder padding boven en onder */
+    min-height: unset;                 /* of verlaag naar 260-280px */
+    display: flex;
+    flex-direction: column;
+}
