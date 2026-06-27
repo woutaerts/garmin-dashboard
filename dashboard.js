@@ -165,8 +165,8 @@ async function updateTrends(days, btnElement = null) {
 
 // 1. Herstel (Slaap & RHR als lijn, HRV als Tunnel!)
     createLineChart('sleepChart', 'Slaapscore', labels, metrics.sleep_score, '#7B61FF');
-    createBandChart('hrvChart', 'HRV & Baseline', labels, metrics.hrv_nightly_avg, metrics.hrv_baseline_low, metrics.hrv_baseline_high, '#00C4B5', '#00C4B5');
-    createLineChart('rhrChart', 'Rusthartslag', labels, metrics.resting_hr, '#FF4B4B');
+    createBandChart('hrvChart', 'HRV', labels, metrics.hrv_nightly_avg, metrics.hrv_baseline_low, metrics.hrv_baseline_high, '#00C4B5', '#00C4B5');
+    createLineChart('rhrChart', 'Rusthartslag', labels, metrics.resting_hr, '#ef4444');
 
     // 2. Energie & Stress
     createDualLineChart('bodyBatteryChart', 'Body Battery (Hoog/Laag)', labels, metrics.body_battery_high, metrics.body_battery_low, '#10b981', '#ef4444');
@@ -441,7 +441,7 @@ function createBandChart(id, title, labels, mainData, lowData, highData, mainCol
             labels,
             datasets: [
                 {
-                    label: 'Acute Load',
+                    label: title,
                     data: mainData,
                     borderColor: mainColor,
                     backgroundColor: mainColor,
