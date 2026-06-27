@@ -169,9 +169,8 @@ async function updateTrends(days, btnElement = null) {
     createLineChart('rhrChart', 'Rusthartslag', labels, metrics.resting_hr, '#ef4444');
 
     // 2. Energie & Stress
-    createDualLineChart('bodyBatteryChart', 'Body Battery (Hoog/Laag)', labels, metrics.body_battery_high, metrics.body_battery_low, '#10b981', '#ef4444');
-    createDualLineChart('stressChart', 'Stress (Max/Gem)', labels, metrics.max_stress, metrics.avg_stress, '#f59e0b', '#3b82f6');
-
+    createDualLineChart('bodyBatteryChart', 'Body Battery', labels, metrics.body_battery_high, metrics.body_battery_low, '#10b981', '#ef4444', 'Hoog', 'Laag');
+    createDualLineChart('stressChart', 'Stress', labels, metrics.max_stress, metrics.avg_stress, '#f59e0b', '#3b82f6', 'Max', 'Gemiddeld');
     // 3. Training
     createBandChart('trainingLoadChart', 'Acute Training Load', labels, metrics.training_load, metrics.acute_load_low, metrics.acute_load_high, '#8b5cf6', '#10b981');
     createFocusChart('loadFocusChart', 'Training Load Focus', labels, metrics.load_focus_anaerobic, metrics.load_focus_aerobic_high, metrics.load_focus_aerobic_low);
@@ -305,6 +304,7 @@ function createLineChart(id, title, labels, data, color) {
             ]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,
@@ -350,10 +350,10 @@ function createLineChart(id, title, labels, data, color) {
 }
 
 // --- DUBBELE LIJN GRAFIEK (Voor Body Battery & Stress) ---
-function createDualLineChart(id, title, labels, data1, data2, color1, color2) {
+function createDualLineChart(id, title, labels, data1, data2, color1, color2, label1 = 'Lijn 1', label2 = 'Lijn 2') {
     if (chartInstances[id]) chartInstances[id].destroy();
 
-    const pointRad = labels.length > 31 ? 0 : 3;   // iets groter maken voor duidelijke bolletjes
+    const pointRad = labels.length > 31 ? 0 : 3;
 
     const ctx = document.getElementById(id).getContext('2d');
 
@@ -363,21 +363,21 @@ function createDualLineChart(id, title, labels, data1, data2, color1, color2) {
             labels,
             datasets: [
                 {
-                    label: 'Hoog',
+                    label: label1, // <--- DYNAMISCH LABEL 1
                     data: data1,
                     borderColor: color1,
-                    backgroundColor: color1,           // <-- belangrijk voor volle bolletjes
+                    backgroundColor: color1,
                     tension: 0.4,
                     pointRadius: pointRad,
-                    pointBackgroundColor: color1,      // volle vulling
-                    pointBorderColor: '#fff',          // wit randje voor mooie look
+                    pointBackgroundColor: color1,
+                    pointBorderColor: '#fff',
                     pointBorderWidth: 1.5
                 },
                 {
-                    label: 'Laag',
+                    label: label2, // <--- DYNAMISCH LABEL 2
                     data: data2,
                     borderColor: color2,
-                    backgroundColor: color2,           // <-- belangrijk
+                    backgroundColor: color2,
                     tension: 0.4,
                     pointRadius: pointRad,
                     pointBackgroundColor: color2,
@@ -387,28 +387,29 @@ function createDualLineChart(id, title, labels, data1, data2, color1, color2) {
             ]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: true,           // false houden bij createLineChart als je dat wilt
+                    display: true,
                     position: 'bottom',
                     labels: {
                         font: {
                             family: 'Space Grotesk',
-                            size: 13                    // ← groter
+                            size: 13
                         },
-                        boxWidth: 12,                   // ← groter
-                        boxHeight: 12,                  // ← groter
-                        padding: 12,                    // iets meer ruimte
+                        boxWidth: 12,
+                        boxHeight: 12,
+                        padding: 12,
                         usePointStyle: true,
                         pointStyle: 'circle'
                     }
                 },
                 title: {
                     display: true,
-                    text: title,                    // of `${title} (Gem: ${average})`
+                    text: title,
                     font: {
                         family: 'Space Grotesk',
-                        size: 16,                   // ← grotere titel
+                        size: 16,
                         weight: 600
                     },
                     padding: {
@@ -477,6 +478,7 @@ function createBandChart(id, title, labels, mainData, lowData, highData, mainCol
             ]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,           // false houden bij createLineChart als je dat wilt
@@ -553,6 +555,7 @@ function createFocusChart(id, title, labels, dataAnaerobic, dataHighAerobic, dat
             ]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,           // false houden bij createLineChart als je dat wilt
@@ -644,6 +647,7 @@ function createSleepPhasesChart(id, title, labels, dataDeep, dataRem, dataLight,
             ]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: true,

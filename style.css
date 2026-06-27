@@ -336,8 +336,15 @@ body {
 }
 
 .trends-grid .card {
-    padding: 16px 20px 12px;           /* minder padding boven en onder */
-    min-height: unset;                 /* of verlaag naar 260-280px */
+    padding: 16px 20px 12px;
+    height: 240px; /* Vaste, ruimere hoogte voor mobiel */
     display: flex;
     flex-direction: column;
+    position: relative; /* Cruciaal zodat Chart.js weet hoe groot de bak is */
+}
+
+@media (min-width: 768px) {
+    .trends-grid .card {
+        height: 300px; /* Nog iets meer ademruimte op desktop */
+    }
 }
