@@ -199,6 +199,7 @@ body {
 }
 
 /* ==================== ACTIVITEITEN ==================== */
+
 .activities-container {
     display: flex;
     flex-direction: column;
@@ -209,116 +210,258 @@ body {
 
 .activity-card {
     cursor: pointer;
+    transition: box-shadow 0.2s ease;
 }
 
 .activity-card:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.activity-card:hover .activity-icon {
-    transform: scale(1.1);
-}
-
-.activity-card:hover .activity-arrow {
-    color: #6b7280;
-}
-
+/* ── Header (altijd zichtbaar) ─────────────────────────── */
 .activity-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 12px;
 }
 
 .activity-info {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
+    flex: 1;
+    min-width: 0;
 }
 
-.activity-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
+/* Gekleurde badge met wit icoon */
+.activity-icon-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
-    transition: transform 0.3s;
+    flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1),
+    inset 0 2px 4px rgba(255,255,255,0.4); /* extra depth */
+    transition: transform 0.2s ease;
 }
 
-.icon-running { background-color: #ffedd5; color: #ea580c; }
-.icon-strength { background-color: #dbeafe; color: #2563eb; }
+.activity-card:hover .activity-icon-badge {
+    transform: scale(1.06);
+}
+
+/* Wit sport-icoon via filter */
+.activity-sport-icon {
+    width: 28px;
+    height: 28px;
+    display: block;
+    filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0,0,0,0.3)); /* extra shadow */
+}
+
+.activity-icon-badge.light-bg {
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15),
+    inset 0 2px 4px rgba(255,255,255,0.6);
+}
+
+.activity-text {
+    min-width: 0;
+}
 
 .activity-name {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
     color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .activity-date {
-    font-size: 14px;
-    color: #6b7280;
+    font-size: 13px;
+    color: #9ca3af;
+    margin-top: 2px;
     font-family: monospace;
     letter-spacing: 0.025em;
 }
 
-.activity-stats {
-    text-align: right;
+/* Rechterkant header */
+.activity-header-right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.activity-stats-right {
+    text-align: right;
 }
 
 .activity-primary-stat {
+    font-size: 16px;
     font-weight: 700;
     color: #111827;
+    line-height: 1.2;
 }
 
-.activity-duration {
-    font-size: 14px;
+.activity-secondary-stat {
+    font-size: 13px;
     color: #6b7280;
+    margin-top: 2px;
     font-family: monospace;
 }
 
 .activity-arrow {
     color: #d1d5db;
-    transition: color 0.3s;
+    font-size: 11px;
+    transition: transform 0.3s ease, color 0.2s ease;
 }
 
-/* Verborgen detail grid */
+.activity-card:hover .activity-arrow {
+    color: #9ca3af;
+}
+
+/* ── Uitklapbaar detailpaneel ──────────────────────────── */
 .activity-details {
     margin-top: 20px;
     padding-top: 16px;
-    border-top: 1px solid #d1d5db;
+    border-top: 1px solid #f3f4f6;
 }
 
+/* 3-koloms grid voor sport-specifieke stats */
 .activity-details-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.detail-stat {
     text-align: center;
+    padding: 10px 6px;
+    background: #f9fafb;
+    border-radius: 10px;
 }
 
 .detail-title {
-    font-size: 12px;
-    color: #9ca3af;
+    font-size: 10px;
     font-weight: 700;
+    color: #9ca3af;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     margin-bottom: 4px;
 }
 
 .detail-value {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: #1f2937;
+    line-height: 1.2;
 }
 
 .detail-unit {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
+    color: #9ca3af;
+}
+
+/* ── Hartslagzones ─────────────────────────────────────── */
+.hr-zones-section {
+    margin-bottom: 16px;
+}
+
+.detail-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.zone-bar {
+    display: flex;
+    height: 10px;
+    border-radius: 6px;
+    overflow: hidden;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.zone-segment {
+    border-radius: 3px;
+    min-width: 2px;
+    transition: opacity 0.15s;
+    cursor: default;
+}
+
+.zone-segment:hover {
+    opacity: 0.75;
+}
+
+.zone-labels {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+}
+
+.zone-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
     color: #6b7280;
 }
+
+.zone-label-dim {
+    opacity: 0.3;
+}
+
+.zone-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.zone-time {
+    font-family: monospace;
+    font-size: 12px;
+    color: #374151;
+}
+
+/* ── Basismetriek rij (TE, training load, VO₂) ────────── */
+.base-metrics-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    border-top: 1px solid #f3f4f6;
+}
+
+.base-metric {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 13px;
+}
+
+.base-metric-label {
+    color: #9ca3af;
+    font-weight: 600;
+}
+
+.base-metric-value {
+    color: #374151;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+
 
 /* ==================== TRENDS RASSTER (2 KOLOMMEN) ==================== */
 .trends-grid {
