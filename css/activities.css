@@ -1,0 +1,276 @@
+/* ====================================================================
+   ACTIVITEITEN — activiteitenlijst met uitklapbaar detailpaneel.
+   ==================================================================== */
+
+.activities-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.activity-card {
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+}
+
+.activity-card:hover {
+    box-shadow: var(--shadow-hover);
+}
+
+/* ---------- Header (altijd zichtbaar) ---------- */
+.activity-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.activity-info {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* Gekleurde badge met wit icoon, kleur komt uit de sportconfig (zie js/activities.js) */
+.activity-icon-badge {
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-badge);
+    transition: transform 0.2s ease;
+}
+
+.activity-card:hover .activity-icon-badge {
+    transform: scale(1.06);
+}
+
+/* Icoon wordt via een filter altijd wit gemaakt, ongeacht het bronbestand */
+.activity-sport-icon {
+    width: 28px;
+    height: 28px;
+    display: block;
+    filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+.activity-text {
+    min-width: 0;
+}
+
+.activity-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.activity-date {
+    font-size: 13px;
+    color: var(--color-text-faint);
+    margin-top: 2px;
+    font-family: monospace;
+    letter-spacing: 0.025em;
+}
+
+/* ---------- Rechterkant header ---------- */
+.activity-header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.activity-stats-right {
+    text-align: right;
+}
+
+.activity-primary-stat {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.2;
+}
+
+.activity-secondary-stat {
+    font-size: 13px;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+    font-family: monospace;
+}
+
+.activity-arrow {
+    color: var(--color-border);
+    font-size: 11px;
+    transition: transform 0.3s ease, color 0.2s ease;
+}
+
+.activity-card:hover .activity-arrow {
+    color: var(--color-text-faint);
+}
+
+/* ---------- Uitklapbaar detailpaneel ---------- */
+.activity-details {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-surface-subtle);
+}
+
+.activity-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.detail-stat {
+    text-align: center;
+    padding: 10px 6px;
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-md);
+}
+
+.detail-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.2;
+}
+
+.detail-unit {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-text-faint);
+}
+
+/* ---------- Hartslagzones per activiteit ---------- */
+.hr-zones-section {
+    margin-bottom: 16px;
+}
+
+.detail-section-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.zone-bar {
+    display: flex;
+    height: 10px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.zone-segment {
+    border-radius: 3px;
+    min-width: 2px;
+    transition: opacity 0.15s;
+}
+
+.zone-segment:hover {
+    opacity: 0.75;
+}
+
+.zone-labels {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 4px 6px;
+}
+
+.zone-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+
+.zone-label-dim {
+    opacity: 0.3;
+}
+
+.zone-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.zone-time {
+    font-family: monospace;
+    font-size: 12px;
+    color: #374151;
+}
+
+/* ---------- Basismetriek-rij (TE, training load, VO2) ---------- */
+.base-metrics-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 14px;
+    border-top: 1px solid var(--color-surface-subtle);
+}
+
+.base-metric {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-sm);
+    padding: 5px 10px;
+    font-size: 13px;
+}
+
+.base-metric-label {
+    color: var(--color-text-faint);
+    font-weight: 600;
+}
+
+.base-metric-value {
+    color: #374151;
+    font-weight: 700;
+    font-family: monospace;
+}
+
+/* ---------- Mobiele polish ---------- */
+@media (max-width: 480px) {
+    .activity-icon-badge {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--radius-md);
+    }
+
+    .activity-sport-icon {
+        width: 22px;
+        height: 22px;
+    }
+
+    .activity-info {
+        gap: 12px;
+    }
+
+    .activity-name {
+        font-size: 15px;
+    }
+}

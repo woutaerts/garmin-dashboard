@@ -1,0 +1,80 @@
+/* ====================================================================
+   DASHBOARD — "Gezondheid vandaag" kaarten en de trends-grafiekgrid.
+   ==================================================================== */
+
+/* ---------- Vandaag-kaarten ---------- */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: var(--section-gap);
+}
+
+@media (min-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.summary-card {
+    text-align: center;
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+}
+
+.summary-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+}
+
+.summary-value {
+    font-size: 48px;
+    font-weight: 700;
+}
+
+.summary-unit {
+    font-size: 18px;
+    color: var(--color-text-faint);
+    margin-left: 4px;
+}
+
+/* ---------- Trends-grid (grafiekkaarten) ---------- */
+.trends-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: var(--section-gap);
+}
+
+@media (min-width: 768px) {
+    .trends-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* Vaste hoogte nodig zodat Chart.js weet hoe groot het canvas mag zijn */
+.trends-grid .card {
+    padding: 16px 20px 12px;
+    height: 240px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    .trends-grid .card {
+        height: 300px;
+    }
+}
+
+@media (max-width: 480px) {
+    .summary-value {
+        font-size: 40px;
+    }
+}

@@ -1,0 +1,100 @@
+/* ====================================================================
+   TOKENS — alle kleuren, afrondingen en schaduwen op één centrale plek.
+   JS leest deze waarden via getComputedStyle() in (zie js/config.js),
+   zo blijft er één bron van waarheid voor de hele site.
+   ==================================================================== */
+
+:root {
+
+    /* ---------- Neutralen ---------- */
+    --color-bg: #f8f8f6;
+    --color-text: #111827;
+    --color-text-muted: #6b7280;
+    --color-text-faint: #9ca3af;
+    --color-border: #d1d5db;
+    --color-border-light: #e5e7eb;
+    --color-surface: #ffffff;
+    --color-surface-muted: #f9fafb;
+    --color-surface-subtle: #f3f4f6;
+
+    /* ---------- Semantisch (goed / slecht) ---------- */
+    --color-success: #10b981;
+    --color-success-bg: #d1fae5;
+    --color-success-text: #065f46;
+    --color-danger: #ef4444;
+    --color-danger-bg: #fee2e2;
+    --color-danger-text: #991b1b;
+
+    /* ---------- Metriek-identiteit: elke metriek krijgt overal
+       dezelfde kleur (KPI-kaart, grafiek, vergelijkingskaart) ---------- */
+    --color-sleep: #7b61ff;
+    --color-sleep-deep: #4c1d95;
+    --color-sleep-rem: #7c3aed;
+    --color-sleep-light: #c4b5fd;
+    --color-sleep-awake: #fda4af;
+    --color-hrv: #00c4b5;
+    --color-rhr: #ef4444;
+    --color-vo2max: #3b82f6;
+    --color-steps: #10b981;
+    --color-body-battery: #f59e0b;
+    --color-stress: #fb7185;
+    --color-stress-secondary: #9ca3af;
+    --color-training: #8b5cf6;
+    --color-training-distance: #ea580c;
+    --color-aerobic-high: #f97316;
+    --color-aerobic-low: #0ea5e9;
+
+    /* ---------- Hartslagzones (gedeeld door activiteit-balk
+       én de hartslagzone-verdeling) ---------- */
+    --zone-1: #93c5fd;
+    --zone-2: #4ade80;
+    --zone-3: #facc15;
+    --zone-4: #fb923c;
+    --zone-5: #f87171;
+
+    /* ---------- Trainingsstatus ---------- */
+    --status-productive: #10b981;
+    --status-maintaining: #3b82f6;
+    --status-recovery: #8b5cf6;
+    --status-attention: #ef4444;
+    --status-neutral: #9ca3af;
+
+    /* ---------- Activiteiten-heatmap (groene intensiteitsschaal) ---------- */
+    --heatmap-0: #e5e7eb;
+    --heatmap-1: #a7f3d0;
+    --heatmap-2: #6ee7b7;
+    --heatmap-3: #34d399;
+    --heatmap-4: #059669;
+
+    /* ---------- Sportbadges: één kleur per sportcategorie ---------- */
+    --sport-running: #fb923c;
+    --sport-cycling: #3b82f6;
+    --sport-swimming: #0ea5e9;
+    --sport-skiing: #6366f1;
+    --sport-strength: #ec4899;
+    --sport-ball: #10b981;
+    --sport-outdoor: #d97706;
+    --sport-water: #0284c7;
+    --sport-mindbody: #8b5cf6;
+    --sport-rowing: #14b8a6;
+    --sport-golf: #65a30d;
+    --sport-boxing: #ef4444;
+    --sport-default: #6b7280;
+
+    /* ---------- Vorm ---------- */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 14px;
+    --radius-xl: 16px;
+    --radius-full: 9999px;
+
+    /* ---------- Schaduw ---------- */
+    --shadow-card: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-badge: 0 3px 8px rgba(0, 0, 0, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+
+    /* ---------- Layout ---------- */
+    --content-max-width: 1024px;
+    --section-gap: 64px;
+    --font-base: 'Space Grotesk', system-ui, sans-serif;
+}

@@ -1,0 +1,375 @@
+/* ====================================================================
+   INSIGHTS — jaarheatmap, maandvergelijking en hartslagzone-verdeling.
+   ==================================================================== */
+
+/* ---------- Activiteiten-heatmap ---------- */
+.heatmap-card {
+    overflow: hidden;
+    margin-bottom: var(--section-gap);
+}
+
+.hm-skeleton {
+    color: var(--color-text-faint);
+    font-size: 14px;
+    text-align: center;
+    padding: 16px 0;
+}
+
+.hm-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--color-text-muted);
+}
+
+.hm-meta-count {
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.hm-meta-sep {
+    color: var(--color-border);
+}
+
+/* Horizontaal scrollbaar zodat het hele jaar ook op mobiel bereikbaar blijft */
+.hm-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.hm-inner {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: fit-content;
+}
+
+.hm-day-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 20px;
+    flex-shrink: 0;
+}
+
+.hm-day-label {
+    height: 12px;
+    font-size: 10px;
+    color: var(--color-text-faint);
+    line-height: 12px;
+    user-select: none;
+}
+
+.hm-right {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hm-month-row {
+    display: flex;
+    gap: 3px;
+}
+
+.hm-month-cell {
+    width: 12px;
+    font-size: 10px;
+    color: var(--color-text-faint);
+    white-space: nowrap;
+    user-select: none;
+    overflow: visible;
+}
+
+.hm-weeks {
+    display: flex;
+    gap: 3px;
+}
+
+.hm-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.hm-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--heatmap-0);
+    transition: opacity 0.15s, transform 0.1s;
+    flex-shrink: 0;
+}
+
+.hm-cell:hover {
+    opacity: 0.75;
+    transform: scale(1.15);
+}
+
+.hm-cell--empty {
+    background: transparent;
+    pointer-events: none;
+}
+
+.hm-legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 12px;
+    justify-content: flex-end;
+}
+
+.hm-legend-label {
+    font-size: 11px;
+    color: var(--color-text-faint);
+}
+
+.hm-legend-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+/* ---------- Maandvergelijking ---------- */
+.comparison-period {
+    text-align: center;
+    font-size: 13px;
+    color: var(--color-text-faint);
+    margin-bottom: 20px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.comparison-empty {
+    text-align: center;
+    color: var(--color-text-faint);
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+#comparison-container {
+    margin-bottom: var(--section-gap);
+}
+
+.cmp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+}
+
+@media (min-width: 640px) {
+    .cmp-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+.cmp-card {
+    text-align: center;
+    padding: 20px 12px 16px;
+    transition: transform 0.2s ease;
+}
+
+.cmp-card:hover {
+    transform: translateY(-3px);
+}
+
+.cmp-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.cmp-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+}
+
+.cmp-unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--color-text-faint);
+}
+
+.cmp-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.cmp-prev {
+    font-size: 12px;
+    color: var(--color-text-faint);
+    font-family: monospace;
+}
+
+.cmp-delta {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: var(--radius-full);
+}
+
+.cmp-delta--good {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+}
+
+.cmp-delta--bad {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+/* ---------- Hartslagzone-verdeling ---------- */
+.zd-card {
+    margin-bottom: var(--section-gap);
+}
+
+.zd-empty {
+    text-align: center;
+    color: var(--color-text-faint);
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+.zd-layout {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.zd-chart-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+    margin: 0 auto;
+}
+
+.zd-center-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.zd-center-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.1;
+}
+
+.zd-center-sub {
+    font-size: 10px;
+    color: var(--color-text-faint);
+    margin-top: 2px;
+    text-align: center;
+}
+
+.zd-rows {
+    flex: 1;
+    min-width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.zd-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.zd-row-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 140px;
+    flex-shrink: 0;
+}
+
+.zd-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.zd-zone-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.1;
+}
+
+.zd-zone-desc {
+    font-size: 10px;
+    color: var(--color-text-faint);
+    margin-top: 1px;
+}
+
+.zd-bar-wrap {
+    flex: 1;
+}
+
+.zd-bar-bg {
+    height: 8px;
+    background: var(--color-surface-subtle);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.zd-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    transition: width 0.6s ease;
+}
+
+.zd-row-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 64px;
+    flex-shrink: 0;
+}
+
+.zd-pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.zd-time {
+    font-size: 11px;
+    color: var(--color-text-faint);
+    font-family: monospace;
+}
+
+/* ---------- Mobiele polish ---------- */
+@media (max-width: 480px) {
+    .cmp-value {
+        font-size: 28px;
+    }
+
+    .zd-row-left {
+        width: 110px;
+    }
+
+    /* bespaart ruimte op smalle schermen, naam + percentage blijven zichtbaar */
+    .zd-zone-desc {
+        display: none;
+    }
+}
