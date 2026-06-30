@@ -17,6 +17,9 @@ supabaseClient.auth.onAuthStateChange((event, session) => {
         setGreeting();
         buildDashboard();
         buildActivities();
+        buildActivityHeatmap();
+        buildWeeklyComparison();
+        buildHRZoneDistribution();
     } else {
         document.getElementById('login-form').classList.remove('hidden');
         document.getElementById('dashboard').classList.add('hidden');
@@ -964,6 +967,333 @@ function createSleepPhasesChart(id, title, labels, dataDeep, dataRem, dataLight,
                 y: { stacked: true }
             },
             interaction: { mode: 'index', intersect: false }
+        }
+    });
+}
+// =============================================================
+// ACTIVITEITEN HEATMAP — GitHub-stijl jaarcalender
+// =============================================================
+
+async function buildActivityHeatmap() {
+    const container = document.getElementById('heatmap-container');
+    if (!container) return;
+
+    // Bereken startdatum: ga terug naar de dichtstbijzijnde maandag, ~52 weken geleden
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    const startDate = new Date(today);
+    startDate.setDate(startDate.getDate() - 364);
+    const dow = startDate.getDay(); // 0=zo, 1=ma, ...
+    const toMonday = dow === 0 ? -6 : 1 - dow;
+    startDate.setDate(startDate.getDate() + toMonday);
+    startDate.setHours(0, 0, 0, 0);
+
+    const { data, error } = await supabaseClient
+        .from('garmin_activities')
+        .select('start_time, training_load, activity_type, activity_name')
+        .gte('start_time', startDate.toISOString())
+        .order('start_time', { ascending: true });
+
+    if (error) return;
+
+    // Groepeer op datum
+    const byDate = {};
+    (data || []).forEach(act => {
+        const d = new Date(act.start_time);
+        const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        if (!byDate[key]) byDate[key] = { load: 0, count: 0, names: [] };
+        byDate[key].load  += (act.training_load || 30);
+        byDate[key].count += 1;
+        byDate[key].names.push(act.activity_name || act.activity_type || 'Activiteit');
+    });
+
+    // Bouw array van alle dagen Ma→Zo per week
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    const weeks = [];
+    let week = [];
+    const cur = new Date(startDate);
+
+    while (cur <= today) {
+        const key = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
+        week.push({ key, data: byDate[key] || null, month: cur.getMonth(), day: cur.getDate() });
+        if (cur.getDay() === 0) { // zondag = einde van de week
+            weeks.push(week);
+            week = [];
+        }
+        cur.setDate(cur.getDate() + 1);
+    }
+    if (week.length > 0) weeks.push(week);
+
+    // Maandlabels boven de juiste kolommen
+    const monthNames = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+    const monthLabels = new Array(weeks.length).fill('');
+    let lastMonth = -1;
+    weeks.forEach((w, i) => {
+        const m = w[0].month;
+        if (m !== lastMonth) { monthLabels[i] = monthNames[m]; lastMonth = m; }
+    });
+
+    // Kleurschaal op basis van training load (donkerder = zwaarder)
+    const getColor = (load) => {
+        if (!load || load === 0) return '#e5e7eb';
+        if (load <= 40)  return '#d1e0d9';   // Very light green-gray
+        if (load <= 80)  return '#a3c9b9';   // Light muted green
+        if (load <= 120) return '#5fb99a';   // Medium green
+        return '#10b981';                    // Full emerald green (heavy load)
+    };
+
+    const totalActs = Object.values(byDate).reduce((s, d) => s + d.count, 0);
+    const activeDays = Object.keys(byDate).length;
+    const dayLabels  = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
+
+    const weeksHTML = weeks.map(w => {
+        const cells = Array.from({ length: 7 }, (_, di) => {
+            const dayEntry = w.find((_, idx) => idx === di) || null;
+            if (!dayEntry) return `<div class="hm-cell hm-cell--empty"></div>`;
+            const color   = getColor(dayEntry.data?.load || 0);
+            const tooltip = dayEntry.data
+                ? `${dayEntry.key} · ${dayEntry.data.names.join(', ')} · load ${dayEntry.data.load}`
+                : dayEntry.key;
+            return `<div class="hm-cell" style="background:${color}" title="${tooltip}"></div>`;
+        }).join('');
+        return `<div class="hm-week">${cells}</div>`;
+    }).join('');
+
+    const monthRowHTML = weeks.map((_, i) =>
+        `<div class="hm-month-cell">${monthLabels[i]}</div>`
+    ).join('');
+
+    container.innerHTML = `
+        <div class="hm-meta">
+            <span class="hm-meta-count">${totalActs} activiteiten</span>
+            <span class="hm-meta-sep">·</span>
+            <span class="hm-meta-days">${activeDays} actieve dagen</span>
+        </div>
+        <div class="hm-scroll">
+            <div class="hm-inner">
+                <div class="hm-day-col">
+                    ${dayLabels.map((d, i) =>
+        `<div class="hm-day-label" style="visibility:${[0,2,4].includes(i)?'visible':'hidden'}">${d}</div>`
+    ).join('')}
+                </div>
+                <div class="hm-right">
+                    <div class="hm-month-row">${monthRowHTML}</div>
+                    <div class="hm-weeks">${weeksHTML}</div>
+                </div>
+            </div>
+        </div>
+        <div class="hm-legend">
+            <span class="hm-legend-label">Minder</span>
+            ${['#e5e7eb','#d1e0d9','#a3c9b9','#5fb99a','#10b981'].map(c =>
+        `<div class="hm-legend-cell" style="background:${c}"></div>`
+    ).join('')}
+            <span class="hm-legend-label">Meer</span>
+        </div>`;
+}
+
+// =============================================================
+// 4-WEKEN VERGELIJKING
+// =============================================================
+
+async function buildWeeklyComparison() {
+    const container = document.getElementById('comparison-container');
+    if (!container) return;
+
+    // 56 dagen dagelijkse metrics ophalen
+    const { data: metricsData } = await supabaseClient
+        .from('daily_metrics')
+        .select('date, sleep_score, hrv_nightly_avg, resting_hr, body_battery_high, training_load, vo2_max, avg_stress')
+        .order('date', { ascending: false })
+        .limit(56);
+
+    // 56 dagen activiteiten ophalen
+    const eightWeeksAgo = new Date();
+    eightWeeksAgo.setDate(eightWeeksAgo.getDate() - 56);
+    const { data: actsData } = await supabaseClient
+        .from('garmin_activities')
+        .select('start_time, distance, duration, training_load')
+        .gte('start_time', eightWeeksAgo.toISOString());
+
+    if (!metricsData || metricsData.length < 2) {
+        container.innerHTML = '<p class="comparison-empty">Niet genoeg data beschikbaar.</p>';
+        return;
+    }
+
+    const current  = metricsData.slice(0, 28);
+    const previous = metricsData.slice(28, 56);
+
+    const avg = (arr, key) => {
+        const vals = arr.map(d => d[key]).filter(v => v != null && v > 0);
+        return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+    };
+
+    const fourWeeksAgo = new Date();
+    fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+    const currentActs  = (actsData || []).filter(a => new Date(a.start_time) >= fourWeeksAgo);
+    const previousActs = (actsData || []).filter(a => new Date(a.start_time) <  fourWeeksAgo);
+    const actSum = (arr, key) => arr.reduce((s, a) => s + (a[key] || 0), 0);
+
+    const metrics = [
+        { label: 'Slaapscore',       color: '#7B61FF', unit: '',     hib: true,
+            curr: avg(current,  'sleep_score'),     prev: avg(previous, 'sleep_score'),     fmt: v => v?.toFixed(0) },
+        { label: 'HRV',              color: '#00C4B5', unit: ' ms',  hib: true,
+            curr: avg(current,  'hrv_nightly_avg'), prev: avg(previous,'hrv_nightly_avg'),  fmt: v => v?.toFixed(0) },
+        { label: 'Rusthartslag',     color: '#ef4444', unit: ' bpm', hib: false,
+            curr: avg(current,  'resting_hr'),      prev: avg(previous, 'resting_hr'),      fmt: v => v?.toFixed(0) },
+        { label: 'Gem. Stress',      color: '#f59e0b', unit: '',     hib: false,
+            curr: avg(current,  'avg_stress'),      prev: avg(previous, 'avg_stress'),      fmt: v => v?.toFixed(0) },
+        { label: 'VO₂ Max',          color: '#3b82f6', unit: '',     hib: true,
+            curr: avg(current,  'vo2_max'),         prev: avg(previous, 'vo2_max'),         fmt: v => v?.toFixed(1) },
+        { label: 'Body Battery',     color: '#10b981', unit: '',     hib: true,
+            curr: avg(current,  'body_battery_high'),prev:avg(previous,'body_battery_high'), fmt: v => v?.toFixed(0) },
+        { label: 'Trainingsafstand', color: '#ea580c', unit: ' km',  hib: true,
+            curr: actSum(currentActs,'distance')/1000, prev: actSum(previousActs,'distance')/1000, fmt: v => v?.toFixed(1) },
+        { label: 'Trainingstijd',    color: '#8b5cf6', unit: ' u',   hib: true,
+            curr: actSum(currentActs,'duration')/3600,  prev: actSum(previousActs,'duration')/3600,  fmt: v => v?.toFixed(1) },
+    ];
+
+    const cardsHTML = metrics.map(m => {
+        const cStr = m.fmt(m.curr) ?? '-';
+        const pStr = m.fmt(m.prev) ?? '-';
+        let deltaHTML = '';
+        if (m.curr != null && m.prev != null && m.prev > 0) {
+            const delta  = m.curr - m.prev;
+            const pct    = Math.abs((delta / m.prev) * 100).toFixed(1);
+            const good   = m.hib ? delta >= 0 : delta <= 0;
+            const arrow  = delta >= 0 ? '↑' : '↓';
+            deltaHTML = `<span class="cmp-delta ${good ? 'cmp-delta--good' : 'cmp-delta--bad'}">${arrow} ${pct}%</span>`;
+        }
+        return `
+            <div class="card cmp-card">
+                <p class="cmp-label">${m.label}</p>
+                <p class="cmp-value" style="color:${m.color}">${cStr}<span class="cmp-unit">${m.unit}</span></p>
+                <div class="cmp-footer">
+                    <span class="cmp-prev">vs ${pStr}${m.unit}</span>
+                    ${deltaHTML}
+                </div>
+            </div>`;
+    }).join('');
+
+    container.innerHTML = `
+        <p class="comparison-period">Huidige 4 weken vs vorige 4 weken</p>
+        <div class="cmp-grid">${cardsHTML}</div>`;
+}
+
+// =============================================================
+// HR ZONE VERDELING — donut + breakdown (laatste 28 dagen)
+// =============================================================
+
+async function buildHRZoneDistribution() {
+    const container = document.getElementById('hr-zone-dist-container');
+    if (!container) return;
+
+    const since = new Date();
+    since.setDate(since.getDate() - 28);
+
+    const { data, error } = await supabaseClient
+        .from('garmin_activities')
+        .select('hr_zone_1, hr_zone_2, hr_zone_3, hr_zone_4, hr_zone_5')
+        .gte('start_time', since.toISOString());
+
+    if (error || !data || data.length === 0) {
+        container.innerHTML = '<p class="zd-empty">Geen hartslagzone data beschikbaar.</p>';
+        return;
+    }
+
+    const zones = [0, 0, 0, 0, 0];
+    data.forEach(act => {
+        zones[0] += act.hr_zone_1 || 0;
+        zones[1] += act.hr_zone_2 || 0;
+        zones[2] += act.hr_zone_3 || 0;
+        zones[3] += act.hr_zone_4 || 0;
+        zones[4] += act.hr_zone_5 || 0;
+    });
+
+    const totalSec = zones.reduce((a, b) => a + b, 0);
+    if (totalSec === 0) {
+        container.innerHTML = '<p class="zd-empty">Geen hartslagzone data beschikbaar.</p>';
+        return;
+    }
+
+    const ZONE_COLORS = ['#93c5fd', '#4ade80', '#facc15', '#fb923c', '#f87171'];
+    const ZONE_LABELS = ['Z1 · Herstel', 'Z2 · Aeroob', 'Z3 · Drempel', 'Z4 · Intensief', 'Z5 · Max'];
+    const ZONE_DESC   = ['< 60% max HR', '60–70%', '70–80%', '80–90%', '> 90%'];
+
+    const fmtTime = s => {
+        const h = Math.floor(s / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        return h > 0 ? `${h}u ${m}min` : `${m} min`;
+    };
+    const totalMin = Math.round(totalSec / 60);
+
+    const rowsHTML = zones.map((z, i) => {
+        const pct = totalSec > 0 ? ((z / totalSec) * 100).toFixed(1) : '0.0';
+        return `
+            <div class="zd-row">
+                <div class="zd-row-left">
+                    <span class="zd-dot" style="background:${ZONE_COLORS[i]}"></span>
+                    <div>
+                        <p class="zd-zone-name">${ZONE_LABELS[i]}</p>
+                        <p class="zd-zone-desc">${ZONE_DESC[i]}</p>
+                    </div>
+                </div>
+                <div class="zd-bar-wrap">
+                    <div class="zd-bar-bg">
+                        <div class="zd-bar-fill" style="width:${pct}%;background:${ZONE_COLORS[i]}"></div>
+                    </div>
+                </div>
+                <div class="zd-row-right">
+                    <span class="zd-pct">${pct}%</span>
+                    <span class="zd-time">${fmtTime(z)}</span>
+                </div>
+            </div>`;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="zd-layout">
+            <div class="zd-chart-wrap">
+                <canvas id="hrZoneDonut"></canvas>
+                <div class="zd-center-label">
+                    <p class="zd-center-val">${fmtTime(totalSec)}</p>
+                    <p class="zd-center-sub">afgelopen 28 dagen</p>
+                </div>
+            </div>
+            <div class="zd-rows">${rowsHTML}</div>
+        </div>`;
+
+    // Donut via Chart.js
+    const ctx = document.getElementById('hrZoneDonut').getContext('2d');
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ZONE_LABELS,
+            datasets: [{
+                data: zones.map(z => Math.max(Math.round(z / 60), 0)),
+                backgroundColor: ZONE_COLORS,
+                borderWidth: 3,
+                borderColor: '#ffffff',
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            maintainAspectRatio: true,
+            cutout: '74%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => {
+                            const min  = ctx.raw;
+                            const pct  = ((min / totalMin) * 100).toFixed(1);
+                            const h    = Math.floor(min / 60);
+                            const m    = min % 60;
+                            const time = h > 0 ? `${h}u ${m}min` : `${m} min`;
+                            return ` ${time}  (${pct}%)`;
+                        }
+                    }
+                }
+            }
         }
     });
 }

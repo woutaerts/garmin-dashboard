@@ -491,3 +491,326 @@ body {
         height: 300px; /* Nog iets meer ademruimte op desktop */
     }
 }
+/* ==================== SECTIE SUBTITLE ==================== */
+.section-subtitle {
+    font-size: 14px;
+    color: #9ca3af;
+    text-align: center;
+    margin-top: -16px;
+    margin-bottom: 24px;
+}
+
+/* ==================== ACTIVITEITEN HEATMAP ==================== */
+
+.heatmap-card {
+    max-width: 900px;
+    margin: 0 auto 64px;
+    overflow: hidden;
+}
+
+.hm-skeleton {
+    color: #9ca3af;
+    font-size: 14px;
+    text-align: center;
+    padding: 16px 0;
+}
+
+/* Statistieken boven de kalender */
+.hm-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #6b7280;
+}
+.hm-meta-count  { font-weight: 700; color: #111827; }
+.hm-meta-sep    { color: #d1d5db; }
+.hm-meta-days   { color: #6b7280; }
+
+/* Scrollable wrapper voor smalle schermen */
+.hm-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.hm-inner  { display: flex; align-items: flex-start; gap: 6px; min-width: fit-content; }
+
+/* Dag-labels links (Ma / Wo / Vr) */
+.hm-day-col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 20px;   /* uitlijnen met de cellen, niet de maandlabels */
+    flex-shrink: 0;
+}
+.hm-day-label {
+    height: 12px;
+    font-size: 10px;
+    color: #9ca3af;
+    line-height: 12px;
+    user-select: none;
+}
+
+/* Rechtergedeelte: maandlabels + weken */
+.hm-right { display: flex; flex-direction: column; gap: 4px; }
+
+/* Maandlabels rij — één cel per week-kolom */
+.hm-month-row {
+    display: flex;
+    gap: 3px;
+}
+.hm-month-cell {
+    width: 12px;
+    font-size: 10px;
+    color: #9ca3af;
+    white-space: nowrap;
+    user-select: none;
+    overflow: visible;
+}
+
+/* Weken rij — flex-rij van week-kolommen */
+.hm-weeks { display: flex; gap: 3px; }
+
+.hm-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.hm-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: #e5e7eb;
+    transition: opacity 0.15s, transform 0.1s;
+    cursor: default;
+    flex-shrink: 0;
+}
+.hm-cell:hover      { opacity: 0.75; transform: scale(1.15); }
+.hm-cell--empty     { background: transparent; pointer-events: none; }
+
+/* Legenda */
+.hm-legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 12px;
+    justify-content: flex-end;
+}
+.hm-legend-label {
+    font-size: 11px;
+    color: #9ca3af;
+}
+.hm-legend-cell {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+/* ==================== 4-WEKEN VERGELIJKING ==================== */
+
+.comparison-period {
+    text-align: center;
+    font-size: 13px;
+    color: #9ca3af;
+    margin-bottom: 20px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+}
+
+.comparison-empty {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+#comparison-container {
+    margin-bottom: 64px;
+}
+
+/* 4-kolommen grid, 2 op mobiel */
+.cmp-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+@media (min-width: 640px) {
+    .cmp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.cmp-card {
+    text-align: center;
+    padding: 20px 12px 16px;
+    transition: transform 0.2s ease;
+}
+.cmp-card:hover { transform: translateY(-3px); }
+
+.cmp-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+}
+
+.cmp-value {
+    font-size: 36px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+}
+.cmp-unit {
+    font-size: 14px;
+    font-weight: 400;
+    color: #9ca3af;
+}
+
+.cmp-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.cmp-prev {
+    font-size: 12px;
+    color: #9ca3af;
+    font-family: monospace;
+}
+
+.cmp-delta {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 9999px;
+}
+.cmp-delta--good {
+    background: #d1fae5;
+    color: #065f46;
+}
+.cmp-delta--bad {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ==================== HR ZONE VERDELING ==================== */
+
+.zd-card {
+    max-width: 900px;
+    margin: 0 auto 64px;
+}
+
+.zd-empty {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 14px;
+    padding: 24px 0;
+}
+
+/* Twee-koloms layout: donut links, rijen rechts */
+.zd-layout {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Donut chart wrapper — relatief voor het centerlabel */
+.zd-chart-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+    margin: 0 auto;
+}
+
+.zd-center-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+.zd-center-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1.1;
+}
+.zd-center-sub {
+    font-size: 10px;
+    color: #9ca3af;
+    margin-top: 2px;
+    text-align: center;
+}
+
+/* Zone rijen (rechterkolom) */
+.zd-rows { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 12px; }
+
+.zd-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.zd-row-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 140px;
+    flex-shrink: 0;
+}
+.zd-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+.zd-zone-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1.1;
+}
+.zd-zone-desc {
+    font-size: 10px;
+    color: #9ca3af;
+    margin-top: 1px;
+}
+
+/* Horizontale balk */
+.zd-bar-wrap { flex: 1; }
+.zd-bar-bg {
+    height: 8px;
+    background: #f3f4f6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+.zd-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+/* Percentage + tijd rechts */
+.zd-row-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 64px;
+    flex-shrink: 0;
+}
+.zd-pct {
+    font-size: 13px;
+    font-weight: 700;
+    color: #111827;
+}
+.zd-time {
+    font-size: 11px;
+    color: #9ca3af;
+    font-family: monospace;
+}
