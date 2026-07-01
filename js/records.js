@@ -208,9 +208,9 @@ function computeYearVolume(allActs) {
         if (k.includes('cycl') || k.includes('bik')) totalKm.cycling += (a.distance || 0) / 1000;
         const cat = k.includes('run') || k.includes('marathon') ? 'Lopen'
             : k.includes('cycl') || k.includes('bik') ? 'Fietsen'
-                : k.includes('swim') ? 'Zwemmen'
-                    : k.includes('strength') || k.includes('weight') || k.includes('fitness') ? 'Kracht'
-                        : 'Overig';
+            : k.includes('swim') ? 'Zwemmen'
+            : k.includes('strength') || k.includes('weight') || k.includes('fitness') ? 'Kracht'
+            : 'Overig';
         totalCount[cat] = (totalCount[cat] || 0) + 1;
     });
 

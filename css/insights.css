@@ -5,7 +5,6 @@
 /* ---------- Activiteiten-heatmap ---------- */
 .heatmap-card {
     overflow: hidden;
-    margin-bottom: var(--section-gap);
 }
 
 .hm-skeleton {

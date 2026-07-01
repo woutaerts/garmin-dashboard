@@ -121,8 +121,8 @@ export async function buildActivityHeatmap() {
         <div class="hm-legend">
             <span class="hm-legend-label">Minder</span>
             ${[THEME.heatmap0, THEME.heatmap1, THEME.heatmap2, THEME.heatmap3, THEME.heatmap4].map(c =>
-        `<div class="hm-legend-cell" style="background:${c}"></div>`
-    ).join('')}
+                `<div class="hm-legend-cell" style="background:${c}"></div>`
+            ).join('')}
             <span class="hm-legend-label">Meer</span>
         </div>`;
 

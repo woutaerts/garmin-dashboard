@@ -171,9 +171,9 @@ function buildSummaryBlock(pmcPoints) {
     const tsbCol = tsbColor(last.tsb);
     const advies = last.tsb > 15 ? 'Uitgerust — intensieve training mogelijk'
         : last.tsb > 5  ? 'Goede vorm — train op niveau'
-            : last.tsb > -5 ? 'Neutraal — herstel aanbevolen'
-                : last.tsb > -20 ? 'Vermoeid — lichte training of rust'
-                    : 'Overbelast — verplichte rustdag';
+        : last.tsb > -5 ? 'Neutraal — herstel aanbevolen'
+        : last.tsb > -20 ? 'Vermoeid — lichte training of rust'
+        : 'Overbelast — verplichte rustdag';
 
     return `
         <div class="pmc-summary">
