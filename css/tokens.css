@@ -81,6 +81,24 @@
     --sport-boxing: #ef4444;
     --sport-default: #6b7280;
 
+    /* ---------- Herstelbereidheid (readiness ring) ---------- */
+    --readiness-great: #10b981;
+    --readiness-good: #34d399;
+    --readiness-moderate: #f59e0b;
+    --readiness-poor: #ef4444;
+    --readiness-track: #e5e7eb;
+
+    /* ---------- PMC – prestatiebeheer grafiek ---------- */
+    --pmc-ctl: #3b82f6;
+    --pmc-atl: #ef4444;
+    --pmc-tsb-pos: #10b981;
+    --pmc-tsb-neg: #f87171;
+    --pmc-tsb-zero: #9ca3af;
+
+    /* ---------- Records ---------- */
+    --record-fire: #ef4444;
+    --record-fresh: #f59e0b;
+
     /* ---------- Vorm ---------- */
     --radius-sm: 8px;
     --radius-md: 12px;

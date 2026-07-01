@@ -1,0 +1,494 @@
+/* ====================================================================
+   FEATURES — herstelbereidheidsring, recordspagina en PMC-grafiek.
+   ==================================================================== */
+
+/* ── Herstelbereidheidsring ───────────────────────────────────────────── */
+
+.readiness-block {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: var(--section-gap);
+}
+
+.readiness-ring-wrap {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    flex-shrink: 0;
+}
+
+.readiness-ring-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    /* begin van de boog bovenaan */
+    transform: rotate(-90deg);
+}
+
+.readiness-ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.readiness-score {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.04em;
+}
+
+.readiness-label {
+    font-size: 11px;
+    color: var(--color-text-faint);
+    text-align: center;
+    margin-top: 4px;
+    font-weight: 600;
+    max-width: 90px;
+    line-height: 1.3;
+}
+
+/* KPI-chips naast de ring */
+.readiness-chips {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    flex: 1;
+    min-width: 200px;
+    max-width: 380px;
+}
+
+.readiness-chip {
+    background: var(--color-surface-muted);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+}
+
+.readiness-chip-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+}
+
+.readiness-chip-value {
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.readiness-chip-unit {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-text-faint);
+}
+
+@media (max-width: 480px) {
+    .readiness-block {
+        flex-direction: column;
+        gap: 20px;
+    }
+    .readiness-chips {
+        width: 100%;
+        max-width: 100%;
+    }
+    .readiness-score {
+        font-size: 32px;
+    }
+}
+
+/* ── Records pagina ───────────────────────────────────────────────────── */
+
+.records-layout {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 32px;
+    align-items: start;
+}
+
+@media (max-width: 768px) {
+    .records-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Sportkopblok */
+.pr-sport-block {
+    margin-bottom: 40px;
+}
+
+.pr-sport-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.pr-sport-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.pr-sport-icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    filter: brightness(0) invert(1);
+}
+
+.pr-sport-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.015em;
+}
+
+/* PR-kaarten raster (3 per rij) */
+.pr-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+@media (max-width: 600px) {
+    .pr-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.pr-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pr-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+}
+
+.pr-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.pr-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    line-height: 1.3;
+}
+
+.pr-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.pr-badge--fire {
+    background: var(--color-danger-bg);
+    color: var(--color-danger-text);
+}
+
+.pr-badge--fresh {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.pr-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+    margin-bottom: 4px;
+}
+
+.pr-sub {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pr-date {
+    font-size: 11px;
+    color: var(--color-text-faint);
+    font-family: monospace;
+    margin-top: 8px;
+}
+
+.pr-ago {
+    color: var(--color-text-faint);
+    opacity: 0.7;
+}
+
+/* Zijbalk */
+.records-sidebar {
+    position: sticky;
+    top: calc(var(--nav-height) + 24px);
+}
+
+.sidebar-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+}
+
+/* Streakkaarten */
+.streak-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.streak-card {
+    text-align: center;
+    padding: 20px 12px 16px;
+    transition: transform 0.2s;
+}
+
+.streak-card:hover {
+    transform: translateY(-2px);
+}
+
+.streak-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.streak-value {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    color: var(--color-text);
+    line-height: 1;
+}
+
+.streak-label {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.streak-sub {
+    font-size: 11px;
+    color: var(--color-text-faint);
+    font-family: monospace;
+    margin-top: 3px;
+}
+
+/* Volumedoelen */
+.vol-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.vol-goal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.vol-goal-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.vol-goal-stat {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    font-family: monospace;
+}
+
+.vol-goal-track {
+    height: 10px;
+    background: var(--color-surface-subtle);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.vol-goal-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.8s cubic-bezier(.4, 0, .2, 1);
+}
+
+.vol-goal-pct {
+    font-size: 11px;
+    color: var(--color-text-faint);
+    margin-top: 4px;
+    text-align: right;
+}
+
+.vol-cats-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 12px;
+}
+
+.vol-cat-row {
+    display: grid;
+    grid-template-columns: 72px 1fr 32px;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.vol-cat-label {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-weight: 600;
+}
+
+.vol-bar-bg {
+    height: 6px;
+    background: var(--color-surface-subtle);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.vol-bar-fill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.6s ease;
+}
+
+.vol-cat-count {
+    font-size: 12px;
+    color: var(--color-text-faint);
+    font-family: monospace;
+    text-align: right;
+}
+
+/* ── PMC grafiek ──────────────────────────────────────────────────────── */
+
+.pmc-header {
+    margin-bottom: 20px;
+}
+
+.pmc-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 640px) {
+    .pmc-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.pmc-stat {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-card);
+}
+
+.pmc-stat--wide {
+    grid-column: span 1;
+}
+
+@media (min-width: 641px) {
+    .pmc-stat--wide {
+        grid-column: span 1;
+    }
+}
+
+.pmc-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+}
+
+.pmc-stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.pmc-stat-advice {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.pmc-toggles {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 8px;
+}
+
+.pmc-toggle-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+}
+
+.pmc-chart-card {
+    height: 360px;
+    padding: 16px 20px 12px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+@media (max-width: 480px) {
+    .pmc-chart-card {
+        height: 280px;
+    }
+
+    .pmc-stat-value {
+        font-size: 22px;
+    }
+}

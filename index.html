@@ -14,14 +14,22 @@
     <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="css/activities.css">
     <link rel="stylesheet" href="css/insights.css">
+    <link rel="stylesheet" href="css/nav.css">
+    <link rel="stylesheet" href="css/panels.css">
+    <link rel="stylesheet" href="css/features.css">
 </head>
 <body>
 
-<svg aria-hidden="true" class="bg-pattern" id="bg-pattern-svg">
-    <defs><pattern id="dot-pattern" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r="1.5"></circle></pattern></defs>
+<svg aria-hidden="true" class="bg-pattern">
+    <defs>
+        <pattern id="dot-pattern" width="24" height="24" patternUnits="userSpaceOnUse">
+            <circle cx="12" cy="12" r="1.5"></circle>
+        </pattern>
+    </defs>
     <rect width="100%" height="100%" fill="url(#dot-pattern)"></rect>
 </svg>
 
+<!-- Login -->
 <div id="login-form">
     <h2>Gezondheidsoverzicht</h2>
     <p>Log in om toegang te krijgen tot je persoonlijke gezondheidsoverzicht.</p>
@@ -31,60 +39,163 @@
     </button>
 </div>
 
+<!-- Navigatiebalk -->
+<nav class="main-nav hidden" id="main-nav">
+    <div class="nav-inner">
+        <span class="nav-logo">Gezondheid<span>overzicht</span></span>
+        <div class="nav-links">
+            <a href="#today"        class="nav-link active" data-page="today">Vandaag</a>
+            <a href="#activiteiten" class="nav-link"        data-page="activiteiten">Activiteiten</a>
+            <a href="#records"      class="nav-link"        data-page="records">Records</a>
+            <a href="#training"     class="nav-link"        data-page="training">Training</a>
+            <a href="#trends"       class="nav-link"        data-page="trends">Trends</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Dashboard -->
 <div id="dashboard" class="hidden">
 
-    <div class="greeting-container">
-        <h1 id="greeting-text">Welkom, Wout</h1>
-        <p>Hier is je gezondheidsoverzicht.</p>
-    </div>
+    <!-- ════════════════════════════════════════
+         PAGINA: VANDAAG
+         ════════════════════════════════════════ -->
+    <section id="page-today" class="page-section">
 
-    <h2 class="section-title">Gezondheid vandaag</h2>
-    <div id="summary-cards" class="dashboard-grid">
-    </div>
-
-    <h2 class="section-title">Activiteiten dit jaar</h2>
-    <div class="card heatmap-card">
-        <div id="heatmap-container">
-            <div class="hm-skeleton">Heatmap wordt geladen…</div>
+        <div class="greeting-container">
+            <h1 id="greeting-text">Welkom, Wout</h1>
+            <p>Hier is je gezondheidsoverzicht.</p>
         </div>
-    </div>
 
-    <h2 class="section-title">Laatste maand</h2>
-    <div id="comparison-container">
-        <div class="hm-skeleton">Vergelijking wordt geladen…</div>
-    </div>
-
-    <h2 class="section-title">Hartslagzone verdeling</h2>
-    <p class="section-subtitle">Cumulatieve tijd per zone over de afgelopen maand</p>
-    <div class="card zd-card">
-        <div id="hr-zone-dist-container">
-            <div class="hm-skeleton">Zones worden geladen…</div>
+        <!-- Herstelbereidheidsring -->
+        <h2 class="section-title">Herstelbereidheid</h2>
+        <div id="readiness-container">
+            <div class="hm-skeleton">Score wordt berekend…</div>
         </div>
-    </div>
 
-    <h2 class="section-title">Gezondheidstrends</h2>
-    <div class="trend-toggle-container">
-        <button class="toggle-btn active" onclick="updateTrends(7, this)">Week</button>
-        <button class="toggle-btn" onclick="updateTrends(30, this)">Maand</button>
-        <button class="toggle-btn" onclick="updateTrends(365, this)">Jaar</button>
-    </div>
+        <!-- KPI-kaarten -->
+        <h2 class="section-title">Gezondheid vandaag</h2>
+        <div id="summary-cards" class="dashboard-grid"></div>
 
-    <div class="trends-grid">
-        <div class="card"><canvas id="sleepChart"></canvas></div>
-        <div class="card"><canvas id="sleepPhasesChart"></canvas></div>
-        <div class="card"><canvas id="trainingLoadChart"></canvas></div>
-        <div class="card"><canvas id="loadFocusChart"></canvas></div>
-        <div class="card"><canvas id="rhrChart"></canvas></div>
-        <div class="card"><canvas id="hrvChart"></canvas></div>
-        <div class="card"><canvas id="bodyBatteryChart"></canvas></div>
-        <div class="card"><canvas id="stressChart"></canvas></div>
-    </div>
+        <!-- Jaarheatmap -->
+        <h2 class="section-title">Activiteiten dit jaar</h2>
+        <div class="card heatmap-card">
+            <div id="heatmap-container">
+                <div class="hm-skeleton">Heatmap wordt geladen…</div>
+            </div>
+        </div>
 
-    <h2 class="section-title">Recente activiteiten</h2>
-    <div id="activities-container" class="activities-container">
+        <!-- Maandvergelijking -->
+        <h2 class="section-title">Laatste maand</h2>
+        <div id="comparison-container">
+            <div class="hm-skeleton">Vergelijking wordt geladen…</div>
+        </div>
+
+        <!-- HR-zone verdeling -->
+        <h2 class="section-title">Hartslagzone verdeling</h2>
+        <p class="section-subtitle">Cumulatieve tijd per zone over de afgelopen maand</p>
+        <div class="card zd-card">
+            <div id="hr-zone-dist-container">
+                <div class="hm-skeleton">Zones worden geladen…</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════
+         PAGINA: ACTIVITEITEN
+         ════════════════════════════════════════ -->
+    <section id="page-activiteiten" class="page-section hidden">
+
+        <div class="greeting-container">
+            <h1 style="font-size:28px;font-weight:700;letter-spacing:-0.025em">Activiteiten</h1>
+            <p>Jouw recente trainingen</p>
+        </div>
+
+        <div id="filter-bar" class="filter-bar"></div>
+        <p id="filter-count" class="filter-count"></p>
+        <div id="activities-container" class="activities-container"></div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════
+         PAGINA: RECORDS
+         ════════════════════════════════════════ -->
+    <section id="page-records" class="page-section hidden">
+
+        <div class="greeting-container">
+            <h1 style="font-size:28px;font-weight:700;letter-spacing:-0.025em">Records</h1>
+            <p>Persoonlijke bests, streaks en jaardoelen</p>
+        </div>
+
+        <div id="records-container">
+            <div class="hm-skeleton">Records worden geladen…</div>
+        </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════
+         PAGINA: TRAINING (PMC)
+         ════════════════════════════════════════ -->
+    <section id="page-training" class="page-section hidden">
+
+        <div class="greeting-container">
+            <h1 style="font-size:28px;font-weight:700;letter-spacing:-0.025em">Training</h1>
+            <p>Fitness, vermoeidheid en vorm over de tijd</p>
+        </div>
+
+        <div id="pmc-container">
+            <div class="hm-skeleton">PMC wordt geladen…</div>
+        </div>
+
+    </section>
+
+    <!-- ════════════════════════════════════════
+         PAGINA: TRENDS
+         ════════════════════════════════════════ -->
+    <section id="page-trends" class="page-section hidden">
+
+        <div class="greeting-container">
+            <h1 style="font-size:28px;font-weight:700;letter-spacing:-0.025em">Gezondheidstrends</h1>
+            <p>Slaap, herstel en trainingsbelasting in de loop van de tijd</p>
+        </div>
+
+        <div class="trend-toggle-container">
+            <button class="toggle-btn active" onclick="updateTrends(7, this)">Week</button>
+            <button class="toggle-btn" onclick="updateTrends(30, this)">Maand</button>
+            <button class="toggle-btn" onclick="updateTrends(365, this)">Jaar</button>
+        </div>
+
+        <div class="trends-grid">
+            <div class="card"><canvas id="sleepChart"></canvas></div>
+            <div class="card"><canvas id="sleepPhasesChart"></canvas></div>
+            <div class="card"><canvas id="trainingLoadChart"></canvas></div>
+            <div class="card"><canvas id="loadFocusChart"></canvas></div>
+            <div class="card"><canvas id="rhrChart"></canvas></div>
+            <div class="card"><canvas id="hrvChart"></canvas></div>
+            <div class="card"><canvas id="bodyBatteryChart"></canvas></div>
+            <div class="card"><canvas id="stressChart"></canvas></div>
+        </div>
+
+    </section>
+
+</div>
+
+<!-- Dag-detailpaneel (buiten #dashboard zodat het altijd full-viewport is) -->
+<div id="panel-backdrop" class="panel-backdrop hidden"></div>
+<div id="day-panel" class="day-panel" role="dialog" aria-modal="true" aria-label="Dag detail">
+    <div class="day-panel-header">
+        <button id="panel-prev" class="panel-nav-btn" title="Vorige dag (←)">&#8592;</button>
+        <div class="panel-date-wrap">
+            <p id="panel-date"     class="panel-date">—</p>
+            <p id="panel-date-dow" class="panel-date-dow">—</p>
+        </div>
+        <button id="panel-next"  class="panel-nav-btn" title="Volgende dag (→)">&#8594;</button>
+        <button id="panel-close" class="panel-close"   title="Sluiten (Esc)">&#x2715;</button>
     </div>
+    <div id="panel-body" class="day-panel-body"></div>
 </div>
 
 <script type="module" src="js/main.js"></script>
+
 </body>
 </html>

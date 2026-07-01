@@ -62,6 +62,17 @@ export const THEME = {
     heatmap3: token('--heatmap-3'),
     heatmap4: token('--heatmap-4'),
 
+    readinessGreat:    token('--readiness-great'),
+    readinessGood:     token('--readiness-good'),
+    readinessModerate: token('--readiness-moderate'),
+    readinessPoor:     token('--readiness-poor'),
+
+    pmcCtl:    token('--pmc-ctl'),
+    pmcAtl:    token('--pmc-atl'),
+    pmcTsbPos: token('--pmc-tsb-pos'),
+    pmcTsbNeg: token('--pmc-tsb-neg'),
+    pmcTsbZero: token('--pmc-tsb-zero'),
+
     sportRunning: token('--sport-running'),
     sportCycling: token('--sport-cycling'),
     sportSwimming: token('--sport-swimming'),

@@ -1,0 +1,380 @@
+/* ====================================================================
+   PANELS — dag-detailpaneel (heatmap klik) en activiteiten-filterbalk.
+   ==================================================================== */
+
+/* ── Backdrop ── */
+.panel-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 90;
+    opacity: 0;
+    transition: opacity 0.28s ease;
+    pointer-events: none;
+}
+
+.panel-backdrop.is-open {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ── Dag-detailpaneel: schuift van rechts binnen ── */
+.day-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100dvh;
+    width: 420px;
+    max-width: 100vw;
+    background: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    z-index: 100;
+    transform: translateX(110%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.day-panel.is-open {
+    transform: translateX(0);
+}
+
+/* ── Paneel-header ── */
+.day-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-border-light);
+    flex-shrink: 0;
+    background: var(--color-surface);
+}
+
+.panel-nav-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+    font-family: var(--font-base);
+}
+
+.panel-nav-btn:hover {
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+}
+
+.panel-nav-btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.panel-date-wrap {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+}
+
+.panel-date {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+}
+
+.panel-date-dow {
+    font-size: 12px;
+    color: var(--color-text-faint);
+    font-weight: 400;
+    margin-top: 1px;
+}
+
+.panel-close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: none;
+    background: var(--color-surface-subtle);
+    color: var(--color-text-muted);
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+    font-family: var(--font-base);
+}
+
+.panel-close:hover {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+}
+
+/* ── Paneel-body (scrollbaar) ── */
+.day-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.panel-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+}
+
+/* Activiteitsrij in het paneel */
+.panel-activity {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border-light);
+    margin-bottom: 8px;
+}
+
+.panel-activity:last-child {
+    margin-bottom: 0;
+}
+
+.panel-act-badge {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.panel-act-badge img {
+    width: 22px;
+    height: 22px;
+    display: block;
+    filter: brightness(0) invert(1);
+}
+
+.panel-act-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text);
+    line-height: 1.2;
+}
+
+.panel-act-meta {
+    font-size: 12px;
+    color: var(--color-text-muted);
+    font-family: monospace;
+    margin-top: 3px;
+}
+
+.panel-empty {
+    text-align: center;
+    padding: 28px 0;
+    color: var(--color-text-faint);
+    font-size: 14px;
+}
+
+/* HR-zones in het paneel (compacte versie) */
+.panel-zone-bar {
+    display: flex;
+    height: 8px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    gap: 2px;
+    margin-top: 10px;
+}
+
+.panel-zone-seg {
+    border-radius: 2px;
+    min-width: 2px;
+}
+
+/* Dagmetrieken: 2×3 raster */
+.panel-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.panel-metric {
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    border: 1px solid var(--color-border-light);
+}
+
+.panel-metric-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-text-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 4px;
+}
+
+.panel-metric-value {
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.panel-metric-unit {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--color-text-faint);
+}
+
+/* ── Activiteiten-filterbalk ── */
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 14px 0 10px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid var(--color-border);
+    background: var(--color-surface);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-family: var(--font-base);
+    white-space: nowrap;
+    user-select: none;
+}
+
+.filter-btn:hover {
+    border-color: var(--color-text-muted);
+    color: var(--color-text);
+}
+
+.filter-btn-all {
+    padding: 0 16px;
+}
+
+.filter-btn-all.active {
+    background: var(--color-text);
+    color: white;
+    border-color: transparent;
+}
+
+/* Sportsymboolbadge links in de knop */
+.filter-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.18s ease;
+}
+
+.filter-icon img {
+    width: 12px;
+    height: 12px;
+    display: block;
+    filter: brightness(0) invert(1);
+}
+
+/* Actieve sportkategorie: knop wordt gevuld met de sportkleur */
+.filter-btn.active:not(.filter-btn-all) {
+    color: white;
+    border-color: transparent;
+}
+
+/* Filterresultaat-teller */
+.filter-count {
+    font-size: 13px;
+    color: var(--color-text-faint);
+    margin-bottom: 20px;
+    min-height: 20px;
+}
+
+/* ── Mobiel ── */
+@media (max-width: 640px) {
+    .day-panel {
+        width: 100%;
+        height: 90dvh;
+        top: auto;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-left: none;
+        border-top: 1px solid var(--color-border);
+        border-radius: 20px 20px 0 0;
+        transform: translateY(110%);
+    }
+
+    .day-panel.is-open {
+        transform: translateY(0);
+    }
+
+    /* Draghandvat bovenaan op mobiel */
+    .day-panel-header::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 4px;
+        background: var(--color-border);
+        border-radius: var(--radius-full);
+    }
+
+    .day-panel-header {
+        position: relative;
+        padding-top: 22px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-btn {
+        font-size: 12px;
+        height: 32px;
+        padding: 0 12px 0 8px;
+        gap: 5px;
+    }
+
+    .filter-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .filter-icon img {
+        width: 11px;
+        height: 11px;
+    }
+}

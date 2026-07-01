@@ -277,18 +277,16 @@ function getSportDetails(act) {
     return { headerStat, headerSubstat, detailStats, baseMetrics };
 }
 
-export async function buildActivities() {
+// Rendert een array van activiteiten in de container — ook aanroepbaar vanuit filters.js.
+export function buildActivitiesFromData(data) {
     const container = document.getElementById('activities-container');
     if (!container) return;
-
-    const { data, error } = await supabaseClient
-        .from('garmin_activities')
-        .select('*')
-        .order('start_time', { ascending: false })
-        .limit(10);
-
-    if (error) return;
     container.innerHTML = '';
+
+    if (!data || data.length === 0) {
+        container.innerHTML = `<p style="text-align:center;color:var(--color-text-faint);padding:32px 0;font-size:14px;">Geen activiteiten gevonden voor dit filter.</p>`;
+        return;
+    }
 
     data.forEach(act => {
         const config = getActivityConfig(act.activity_type);
@@ -341,6 +339,13 @@ export async function buildActivities() {
                 </div>
             </div>`;
     });
+}
+
+// buildActivities haalt data op en geeft die door aan de renderer hierboven.
+// filters.js roept buildActivitiesFromData rechtstreeks aan met gefilterde data.
+export async function buildActivities() {
+    // De initiële rendering wordt overgenomen door initFilterBar() in filters.js,
+    // zodat filter-state al meteen correct is. Hier doen we niets extra's.
 }
 
 // Klapt het detailpaneel van één activiteit open of dicht (window-functie i.v.m. inline onclick).

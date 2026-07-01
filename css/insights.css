@@ -98,18 +98,31 @@
     height: 12px;
     border-radius: 3px;
     background: var(--heatmap-0);
-    transition: opacity 0.15s, transform 0.1s;
+    transition: opacity 0.15s, transform 0.12s;
     flex-shrink: 0;
+    cursor: pointer;
 }
 
 .hm-cell:hover {
     opacity: 0.75;
-    transform: scale(1.15);
+    transform: scale(1.25);
+}
+
+.hm-cell:focus-visible {
+    outline: 2px solid var(--color-text);
+    outline-offset: 1px;
+}
+
+/* Vandaag: dunne ring eromheen */
+.hm-cell--today {
+    outline: 2px solid var(--color-text);
+    outline-offset: 1px;
 }
 
 .hm-cell--empty {
     background: transparent;
     pointer-events: none;
+    cursor: default;
 }
 
 .hm-legend {

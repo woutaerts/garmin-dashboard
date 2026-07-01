@@ -1,6 +1,8 @@
 // Activiteiten-heatmap: GitHub-stijl jaarkalender op basis van training load.
+// Elke cel is klikbaar en opent het dag-detailpaneel.
 
 import { supabaseClient, THEME } from './config.js';
+import { openDayPanel } from './day-panel.js';
 
 export async function buildActivityHeatmap() {
     const container = document.getElementById('heatmap-container');
@@ -13,8 +15,7 @@ export async function buildActivityHeatmap() {
     const startDate = new Date(today);
     startDate.setDate(startDate.getDate() - 364);
     const dow = startDate.getDay();
-    const toMonday = dow === 0 ? -6 : 1 - dow;
-    startDate.setDate(startDate.getDate() + toMonday);
+    startDate.setDate(startDate.getDate() + (dow === 0 ? -6 : 1 - dow));
     startDate.setHours(0, 0, 0, 0);
 
     const { data, error } = await supabaseClient
@@ -36,23 +37,21 @@ export async function buildActivityHeatmap() {
         byDate[key].names.push(act.activity_name || act.activity_type || 'Activiteit');
     });
 
-    // Bouw weken op, maandag t/m zondag
+    // Bouw weekkolommen op (ma→zo)
     const weeks = [];
     let week = [];
     const cur = new Date(startDate);
+    const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     while (cur <= today) {
         const key = `${cur.getFullYear()}-${String(cur.getMonth() + 1).padStart(2, '0')}-${String(cur.getDate()).padStart(2, '0')}`;
         week.push({ key, data: byDate[key] || null, month: cur.getMonth() });
-        if (cur.getDay() === 0) {
-            weeks.push(week);
-            week = [];
-        }
+        if (cur.getDay() === 0) { weeks.push(week); week = []; }
         cur.setDate(cur.getDate() + 1);
     }
     if (week.length > 0) weeks.push(week);
 
-    // Maandlabel boven de eerste week-kolom waarin die maand begint
+    // Maandlabel boven de eerste week van elke maand
     const monthNames = ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Dec'];
     const monthLabels = new Array(weeks.length).fill('');
     let lastMonth = -1;
@@ -61,7 +60,6 @@ export async function buildActivityHeatmap() {
         if (m !== lastMonth) { monthLabels[i] = monthNames[m]; lastMonth = m; }
     });
 
-    // Groene intensiteitsschaal op basis van training load
     const getColor = (load) => {
         if (!load) return THEME.heatmap0;
         if (load <= 40) return THEME.heatmap1;
@@ -74,20 +72,36 @@ export async function buildActivityHeatmap() {
     const activeDays = Object.keys(byDate).length;
     const dayLabels = ['Ma', 'Di', 'Wo', 'Do', 'Vr', 'Za', 'Zo'];
 
+    // Bouw HTML — cellen krijgen data-date voor de klikhandler
     const weeksHTML = weeks.map(w => {
         const cells = Array.from({ length: 7 }, (_, di) => {
-            const dayEntry = w[di] || null;
-            if (!dayEntry) return `<div class="hm-cell hm-cell--empty"></div>`;
-            const color = getColor(dayEntry.data?.load || 0);
-            const tooltip = dayEntry.data
-                ? `${dayEntry.key} · ${dayEntry.data.names.join(', ')} · load ${dayEntry.data.load}`
-                : dayEntry.key;
-            return `<div class="hm-cell" style="background:${color}" title="${tooltip}"></div>`;
+            const entry = w[di] || null;
+            if (!entry) return `<div class="hm-cell hm-cell--empty"></div>`;
+
+            const color = getColor(entry.data?.load || 0);
+            const isToday = entry.key === todayKey;
+            const hasData = !!entry.data;
+            const tooltip = hasData
+                ? `${entry.key} · ${entry.data.names.join(', ')} · load ${entry.data.load}`
+                : entry.key;
+
+            return `<div
+                class="hm-cell${isToday ? ' hm-cell--today' : ''}${hasData ? ' hm-cell--active' : ''}"
+                style="background:${color}"
+                data-date="${entry.key}"
+                title="${tooltip}"
+                role="button"
+                tabindex="0"
+                aria-label="${tooltip}"
+            ></div>`;
         }).join('');
         return `<div class="hm-week">${cells}</div>`;
     }).join('');
 
     const monthRowHTML = weeks.map((_, i) => `<div class="hm-month-cell">${monthLabels[i]}</div>`).join('');
+    const dayColHTML = dayLabels.map((d, i) =>
+        `<div class="hm-day-label" style="visibility:${[0, 2, 4].includes(i) ? 'visible' : 'hidden'}">${d}</div>`
+    ).join('');
 
     container.innerHTML = `
         <div class="hm-meta">
@@ -97,9 +111,7 @@ export async function buildActivityHeatmap() {
         </div>
         <div class="hm-scroll">
             <div class="hm-inner">
-                <div class="hm-day-col">
-                    ${dayLabels.map((d, i) => `<div class="hm-day-label" style="visibility:${[0, 2, 4].includes(i) ? 'visible' : 'hidden'}">${d}</div>`).join('')}
-                </div>
+                <div class="hm-day-col">${dayColHTML}</div>
                 <div class="hm-right">
                     <div class="hm-month-row">${monthRowHTML}</div>
                     <div class="hm-weeks">${weeksHTML}</div>
@@ -108,7 +120,16 @@ export async function buildActivityHeatmap() {
         </div>
         <div class="hm-legend">
             <span class="hm-legend-label">Minder</span>
-            ${[THEME.heatmap0, THEME.heatmap1, THEME.heatmap2, THEME.heatmap3, THEME.heatmap4].map(c => `<div class="hm-legend-cell" style="background:${c}"></div>`).join('')}
+            ${[THEME.heatmap0, THEME.heatmap1, THEME.heatmap2, THEME.heatmap3, THEME.heatmap4].map(c =>
+        `<div class="hm-legend-cell" style="background:${c}"></div>`
+    ).join('')}
             <span class="hm-legend-label">Meer</span>
         </div>`;
+
+    // Klikhandler op alle cellen — zowel muis als toetsenbord
+    container.querySelectorAll('.hm-cell[data-date]').forEach(cell => {
+        const open = () => openDayPanel(cell.dataset.date);
+        cell.addEventListener('click', open);
+        cell.addEventListener('keydown', e => (e.key === 'Enter' || e.key === ' ') && open());
+    });
 }

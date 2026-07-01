@@ -1,0 +1,98 @@
+:root {
+    --nav-height: 60px;
+}
+
+/* ── Sticky balk ── */
+.main-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--nav-height);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--color-border-light);
+    z-index: 50;
+}
+
+.nav-inner {
+    max-width: var(--content-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.nav-logo {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--color-text);
+    letter-spacing: -0.025em;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.nav-logo span {
+    color: var(--color-text-faint);
+    font-weight: 400;
+}
+
+.nav-links {
+    display: flex;
+    gap: 4px;
+}
+
+.nav-link {
+    padding: 7px 16px;
+    border-radius: var(--radius-full);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: background 0.18s ease, color 0.18s ease;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background: var(--color-surface-subtle);
+    color: var(--color-text);
+}
+
+.nav-link.active {
+    background: var(--color-text);
+    color: white;
+}
+
+/* Dashboard paginering — toon/verberg secties */
+.page-section {
+    display: block;
+}
+
+.page-section.hidden {
+    display: none;
+}
+
+/* Ruimte voor de sticky nav zodra die zichtbaar is */
+#dashboard.has-nav {
+    padding-top: calc(var(--nav-height) + 36px);
+}
+
+/* ── Mobiel ── */
+@media (max-width: 480px) {
+    .nav-inner {
+        padding: 0 16px;
+    }
+
+    .nav-logo {
+        font-size: 14px;
+    }
+
+    .nav-link {
+        padding: 7px 12px;
+        font-size: 13px;
+    }
+}
